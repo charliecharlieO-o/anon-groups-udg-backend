@@ -147,7 +147,10 @@ router.post("/register", (req, res) => {
 	let newUser = new User({
 		"username": req.body.username,
 		"password": req.body.password,
-    "alias": req.body.alias,
+    "alias": {
+      "handle": null,
+      "changed": null
+    },
     "profile_pic": {
       "thumbnail": null,
       "location": null,
@@ -158,7 +161,7 @@ router.post("/register", (req, res) => {
 		"contact_info": [],
 		"info_requests": [],
 		"alerts": [],
-		"phone_number": req.body.phone_number,
+		"email": req.body.email,
 		"last_log": Date.now(),
     "priviledges": ["search_user","can_reply","can_post"]
 	});
@@ -174,10 +177,10 @@ router.post("/register", (req, res) => {
 	});
 });
 
-/* POST login user (Captcha protected) */
-router.post("/login/phone", (req, res) => {
+/* POST login user */
+router.post("/login/email", (req, res) => {
 	User.findOne({
-		"phone_number": req.body.phone_number
+		"email": req.body.email
 	}, (err, user) => {
 		if(err)
 			throw err;
@@ -313,7 +316,9 @@ router.put("/profile-pic", passport.authenticate("jwt", {"session": false}), uti
   }
 });
 
-/* PUT change phone number */
+/* PUT reset password */
+
+/* PUT change email */
 
 /* PUT change user alias */
 router.put("/alias", passport.authenticate("jwt", {"session": false}), (req, res) => {

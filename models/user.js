@@ -30,7 +30,7 @@ const userSchema = new Schema({
 	bio: { type: String, maxlength: 300, default: null },
 	priviledges: [ { type: String, required: true, enum: settings.priviledges } ],
 	contact_info: [ userContactInfo ],
-	phone_number: { type: String, required: true, unique: true },
+	email: { type: String, required: true, unique: true, index: true },
 	new_notifications: { type: Number, required: true, default: 0 },
 	new_requests: { type: Number, required: true, default: 0 },
 	last_log: { type: Date, required: true, default: null },
