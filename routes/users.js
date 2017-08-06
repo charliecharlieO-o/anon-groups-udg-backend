@@ -6,9 +6,12 @@ const uuid = require("uuid");
 const passport_utils = require("../config/passport-utils");
 const router = express.Router();
 
+// Utilities
 const config = require("../config/database");
 const utils = require("../config/utils");
 const settings = require("../config/settings");
+// Siiau authentication
+const siiauAuth = require("../config/siiau-auth.js")
 
 const default_user_list = "_id username banned profile_pic last_log";
 
@@ -142,8 +145,11 @@ router.get("/:user_id/profile", passport.authenticate("jwt", {"session": false})
   }
 });
 
+/* POST register new user by invitation */
+
 /* POST register new user (Must be protected) */
 router.post("/register", (req, res) => {
+  // Create user object
 	let newUser = new User({
 		"username": req.body.username,
 		"password": req.body.password,
@@ -165,16 +171,28 @@ router.post("/register", (req, res) => {
 		"last_log": Date.now(),
     "priviledges": ["search_user","can_reply","can_post"]
 	});
-	User.create(newUser, (err, user) => {
-		if(err){
-			// Check for validation errors
-			res.json({ "success": false });
-		}
-		else{
-			user.password = null;
-			res.json({ "success": true, "doc": user });
-		}
-	});
+  // Check user existence in SIIAU first
+  siiauAuth.getUserInfo(req.body.nip, req.body.udgpwd)
+    .then((response) => {
+      if(response != null){
+        // Check user credentials and info
+        User.create(newUser, (err, user) => {
+      		if(err){
+      			// Check for validation errors
+      			res.json({ "success": false });
+      		}
+      		else{
+      			user.password = null;
+      			res.json({ "success": true, "doc": user });
+      		}
+      	});
+      } else {
+        res.json({ "success": false, "err": 101 });
+      }
+    })
+    .catch((err) => {
+      res.json({ "success": false, "err": 100 });
+    });
 });
 
 /* POST login user */
