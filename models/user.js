@@ -17,6 +17,7 @@ const userContactInfo = new Schema({
 const userSchema = new Schema({
 	username: { type: String, minlength:1, maxlength: 35, required: true, unique: true, index: true },
 	password: { type: String, required: true },
+	nip-hash: { type: String, required: true, unique: true, index: true }, // SIIAU NIP HASH
 	alias: { // This field will enforce user anonimity throughout the site
 		handle: { type: String, minlength: 1, maxlength: 35, default: null },
 		changed: { type: Date, default: null }
