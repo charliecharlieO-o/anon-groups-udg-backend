@@ -163,7 +163,7 @@ router.post("/register", (req, res) => {
       "mimetype": null,
       "size": null
     },
-    "bio": req.body.bio,
+    "bio": null,
 		"contact_info": [],
 		"info_requests": [],
 		"alerts": [],
@@ -175,11 +175,18 @@ router.post("/register", (req, res) => {
   siiauAuth.getUserInfo(req.body.nip, req.body.udgpwd)
     .then((response) => {
       if(response != null){
+        // Set NIP code to user object
+        newUser.setNIP(response.code);
+        // If there are any validation errorrs return in convenient JSON
+        let validationErrors = newUser.validateSync();
+        if(validationErrors) {
+          res.json(utils.parseValidationErrors(validationErrors));
+          return;
+        }
         // Check user credentials and info
         User.create(newUser, (err, user) => {
       		if(err){
-      			// Check for validation errors
-      			res.json({ "success": false });
+      			res.json({ "success": false, "errors": utils.parseMongooseError(err) });
       		}
       		else{
       			user.password = null;
