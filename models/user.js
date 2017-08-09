@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const crc32 = require("crc32");
 const Schema = mongoose.Schema;
 
 const settings = require("../config/settings");
@@ -15,11 +16,11 @@ const userContactInfo = new Schema({
 }, { "_id": false });
 
 const userSchema = new Schema({
-	username: { type: String, minlength:1, maxlength: 35, required: true, unique: true, index: true },
+	username: { type: String, minlength:1, maxlength: 35, required: true, unique: true, index: true },// needs a validator
 	password: { type: String, required: true },
-	nip-hash: { type: String, required: true, unique: true, index: true }, // SIIAU NIP HASH
+	nipCode: { type: Number, required: true, unique: true, index: true }, // SIIAU NIP HASH
 	alias: { // This field will enforce user anonimity throughout the site
-		handle: { type: String, minlength: 1, maxlength: 35, default: null },
+		handle: { type: String, minlength: 1, maxlength: 35, default: null }, // needs a validator
 		changed: { type: Date, default: null }
 	},
 	profile_pic: {
@@ -31,7 +32,7 @@ const userSchema = new Schema({
 	bio: { type: String, maxlength: 300, default: null },
 	priviledges: [ { type: String, required: true, enum: settings.priviledges } ],
 	contact_info: [ userContactInfo ],
-	email: { type: String, required: true, unique: true, index: true },
+	email: { type: String, required: true, unique: true, index: true }, // Must be validated
 	new_notifications: { type: Number, required: true, default: 0 },
 	new_requests: { type: Number, required: true, default: 0 },
 	last_log: { type: Date, required: true, default: null },
@@ -64,7 +65,13 @@ userSchema.pre("save", function(next){
 	}
 });
 
-userSchema.methods.comparePassword = function(passw, cb){
+userSchema.methods.setNIP = function(newNIP) {
+	const hash = crc32.direct(newNIP);
+	this.nipCode = hash;
+	return hash;
+};
+
+userSchema.methods.comparePassword = function(passw, cb) {
 	bcrypt.compare(passw, this.password, (err, isMatch) => {
 		if(err){
 			return cb(err);
