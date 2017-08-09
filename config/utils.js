@@ -1,16 +1,16 @@
 // Import required dependencies for media upload and thumbnail creation
-const multer = require("multer");
-const path = require("path");
-const crypto = require("crypto");
-const mime = require("mime");
-const sharp = require("sharp");
-const ffmpeg = require("fluent-ffmpeg")
-const fs = require("fs");
+const multer = require('multer');
+const path = require('path');
+const crypto = require('crypto');
+const mime = require('mime');
+const sharp = require('sharp');
+const ffmpeg = require('fluent-ffmpeg')
+const fs = require('fs');
 // Import models required for notification
-const Notification = require("../models/notification");
-const User = require("../models/user");
+const Notification = require('../models/notification');
+const User = require('../models/user');
 // Import system configurations
-const settings = require("./settings");
+const settings = require('./settings');
 
 //=================================================================================
 //									--	ALGORITHMS & FUNCTIONS --
@@ -68,6 +68,31 @@ const parseJSON = (json, callback) => {
   }
 };
 
+// Parse mongoose error
+const parseMongooseError = (error) => {
+  if(!error)
+    return null;
+  const fieldName = error.message.substring(error.message.lastIndexOf('.$') + 2, error.message.lastIndexOf('_1'));
+  let errorString = '';
+  if (error.code === 11000) {
+    errorString = 'already exists';
+  }
+  const otp = `${fieldName.charAt(0).toUpperCase()} ${fieldName.slice(1)} ${errorString}`;
+  const splits = otp.split(':');
+  return splits[(splits.length - 1)];
+};
+
+// Parse mongoose validation errors
+const parseValidationErrors = (err) => {
+  if(!err)
+    return null;
+  let validationErrors = {};
+  for(let key in err.errors) {
+    validationErrors[key] = (err.errors[key]).properties.type;
+  }
+  return validationErrors;
+};
+
 //=================================================================================
 //									--	Notifications --
 //=================================================================================
@@ -76,14 +101,14 @@ const parseJSON = (json, callback) => {
 const createAndSendNotification = (owner_id, title, description, url, callback) => {
   // Create the notification in the database and up user notification count
   let notification = new Notification({
-    "owner": owner_id,
-    "title": title,
-    "description": description,
-    "reference_url": url
+    'owner': owner_id,
+    'title': title,
+    'description': description,
+    'reference_url': url
   });
   Notification.create(notification, (err, notification) => {
     if(typeof callback === 'function'){
-      User.findOneAndUpdate({ "_id": owner_id }, { "$inc": { "new_notifications": 1 }}); // Increment notification counter
+      User.findOneAndUpdate({ '_id': owner_id }, { '$inc': { 'new_notifications': 1 }}); // Increment notification counter
       return callback(err, notification);
     }
     else{
@@ -98,10 +123,10 @@ const createAndSendNotification = (owner_id, title, description, url, callback) 
 
 // Multer storage object
 const storage = multer.diskStorage({
-  "destination": function(req, file, cb){
+  'destination': function(req, file, cb){
     cb(null, __dirname + '/../public/media/');
   },
-  "filename": function (req, file, cb) {
+  'filename': function (req, file, cb) {
     crypto.pseudoRandomBytes(16, function (err, raw) {
       cb(null, raw.toString('hex') + Date.now() + '.' + mime.extension(file.mimetype));
     });
@@ -113,14 +138,14 @@ const filter = function(req, file, cb){
     cb(null, true);
   }
   else{
-    return cb(new Error("Wrong file format"));
+    return cb(new Error('Wrong file format'));
   }
 };
 // Utility function/middleware to upload a media file
 const uploadMediaFile = multer({
-  "storage": storage,
-  "limits": {"fileSize": settings.max_upload_size, "files": 1}, // 8 MB max size
-  "fileFilter": filter
+  'storage': storage,
+  'limits': {'fileSize': settings.max_upload_size, 'files': 1}, // 8 MB max size
+  'fileFilter': filter
 });
 // Utility function to generate a thumbnail from the uploaded file
 const thumbnailGenerator = function(multer_file){
@@ -136,7 +161,7 @@ const thumbnailGenerator = function(multer_file){
         .max()
         .toFile(thumbnail_dest, (err) => {
           if(!err){
-            multer_file["thumbnail"] = thumbnail_dest;
+            multer_file['thumbnail'] = thumbnail_dest;
             resolve(multer_file);
           }
           else {
@@ -148,17 +173,17 @@ const thumbnailGenerator = function(multer_file){
       // Create video thumbnail
       ffmpeg(multer_file.path)
         .on('end', () => {
-          multer_file["thumbnail"] = thumbnail_dest;
+          multer_file['thumbnail'] = thumbnail_dest;
           resolve(multer_file);
         })
         .on('error', () => {
-          reject(new Error("Unable to parse"));
+          reject(new Error('Unable to parse'));
         })
         .screenshots({
-          "timestamps": ['20%'],
-          "filename": `${thumbnail_name}thumb.png`,
-          "folder": multer_file.destination,
-          "size": "200x150"
+          'timestamps': ['20%'],
+          'filename': `${thumbnail_name}thumb.png`,
+          'folder': multer_file.destination,
+          'size': '200x150'
         });
     }
     else{
@@ -184,11 +209,13 @@ const deleteFile = function(path, callback){
 };
 
 module.exports = {
-  "hasRequiredPriviledges": priviledgeCheck,
-  "hotAlgorithm": hotAlgorithm,
-  "createAndSendNotification": createAndSendNotification,
-  "parseJSON": parseJSON,
-  "uploadMediaFile": uploadMediaFile,
-  "thumbnailGenerator": thumbnailGenerator,
-  "deleteFile": deleteFile
+  'hasRequiredPriviledges': priviledgeCheck,
+  'hotAlgorithm': hotAlgorithm,
+  'createAndSendNotification': createAndSendNotification,
+  'parseJSON': parseJSON,
+  'uploadMediaFile': uploadMediaFile,
+  'thumbnailGenerator': thumbnailGenerator,
+  'deleteFile': deleteFile,
+  'parseValidationErrors': parseValidationErrors,
+  'parseMongooseError': parseMongooseError
 };
