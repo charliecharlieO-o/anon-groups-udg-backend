@@ -180,13 +180,13 @@ router.post("/register", (req, res) => {
         // If there are any validation errorrs return in convenient JSON
         let validationErrors = newUser.validateSync();
         if(validationErrors) {
-          res.json(utils.parseValidationErrors(validationErrors));
+          res.json({ "success": false, "valerr": utils.parseValidationErrors(validationErrors) });
           return;
         }
         // Check user credentials and info
         User.create(newUser, (err, user) => {
       		if(err){
-      			res.json({ "success": false, "errors": utils.parseMongooseError(err) });
+      			res.json({ "success": false, "dberr": utils.parseMongooseError(err) });
       		}
       		else{
       			user.password = null;
