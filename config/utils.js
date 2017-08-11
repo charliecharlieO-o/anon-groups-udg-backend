@@ -88,7 +88,7 @@ const parseValidationErrors = (err) => {
     return null;
   let validationErrors = {};
   for(let key in err.errors) {
-    validationErrors[key] = (err.errors[key]).properties.type;
+    validationErrors[key] = (err.errors[key]).properties.message;
   }
   return validationErrors;
 };
