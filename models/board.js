@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
 
-const settings = require("../config/settings");
+const settings = require('../config/settings')
 
 const boardSchema = new Schema({
 	slug: { type: String, required: true, unique: true, index: true }, // Index
@@ -20,8 +20,8 @@ const boardSchema = new Schema({
 		name: { type: String, required: true },
 		id: { type: Schema.ObjectId, required: true }
 	}
-}, { timestamps: { "createdAt": "created_at", "updatedAt": "updated_at" }});
+}, { timestamps: { 'createdAt': 'created_at', 'updatedAt': 'updated_at' }})
 
 // On Update check image is not null
 
-module.exports = mongoose.model("Board", boardSchema);
+module.exports = mongoose.model('Board', boardSchema)

@@ -1,13 +1,13 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
 
-const settings = require("../config/settings");
+const settings = require('../config/settings')
 
 const boardSchema = new Schema({
 	id: { type: Schema.ObjectId, required: false, index: true },
 	slug: { type: String, required: false, index: true },
 	short_name: { type: String, required: false }
-},{ "_id": false });
+},{ '_id': false })
 
 const adminSchema = new Schema({
 	user: {
@@ -22,8 +22,8 @@ const adminSchema = new Schema({
 	divisions: { type: [{ type: String, enum: settings.issue_categories }], required: false },
 	last_resolution: { type: Date, default: null },
 	issues_solved: { type: Number, required: true, default: 0 }
-}, { timestamps: { "createdAt": "appointed_at" }});
+}, { timestamps: { 'createdAt': 'appointed_at' }})
 
-adminSchema.index({ "user.name": "text" });
+adminSchema.index({ 'user.name': 'text' })
 
-module.exports = mongoose.model("Admin", adminSchema);
+module.exports = mongoose.model('Admin', adminSchema)

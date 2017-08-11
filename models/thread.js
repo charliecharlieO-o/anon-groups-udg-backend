@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
 
-const utils = require("../config/utils");
+const utils = require('../config/utils')
 
 //Threads should die after 24 hours and decay continuosly
 
@@ -9,7 +9,7 @@ const posterSchema = new Schema({
 	name: { type: String, required: true },
 	thumbnail: { type: String, required: true },
 	id: { type: Schema.ObjectId, required: true }
-},{ "_id": false });
+},{ '_id': false })
 
 const replyExcerptSchema = new Schema({
 	reply_id: { type: Schema.ObjectId }, //MUST BE REQUIRED
@@ -17,7 +17,7 @@ const replyExcerptSchema = new Schema({
 	poster_id: { type: Schema.ObjectId, required: true },
 	poster_pic: { type: String, required: true },
 	text_excerpt: { type: String, required: true }
-},{ "_id": false });
+},{ '_id': false })
 
 const threadSchema = new Schema({
 	board: { type: Schema.ObjectId },
@@ -37,25 +37,25 @@ const threadSchema = new Schema({
 	alive: { type: Boolean, required: true, default: true },
 	thread_decay: { type: Number, required: true, default: 0 },
 	reply_count: { type: Number, required: true, default: 0 }
-}, { timestamps: { "createdAt": "created_at", "updatedAt": "updated_at" } });
+}, { timestamps: { 'createdAt': 'created_at', 'updatedAt': 'updated_at' } })
 
-threadSchema.index({ title: "text" });
+threadSchema.index({ title: 'text' })
 
-threadSchema.pre("save", function(next){
-	let thread = this;
-	if(thread.isNew || thread.isModified("text") || thread.isModified("media")){
+threadSchema.pre('save', function(next){
+	let thread = this
+	if(thread.isNew || thread.isModified('text') || thread.isModified('media')){
 		// Check if post contains image or text
-		if(thread.media || (thread.text && thread.text !== "" && thread.text.match(/^\s*$/) == null)){
-			thread.thread_decay = utils.hotAlgorithm(thread.reply_count, 0, thread.created_at);
-			next();
+		if(thread.media || (thread.text && thread.text !== '' && thread.text.match(/^\s*$/) == null)){
+			thread.thread_decay = utils.hotAlgorithm(thread.reply_count, 0, thread.created_at)
+			next()
 		}
 		else{
-			next(new Error("Thread must contain at least media or text"));
+			next(new Error('Thread must contain at least media or text'))
 		}
 	}
 	else{
-		next();
+		next()
 	}
-});
+})
 
-module.exports = mongoose.model("Thread", threadSchema);
+module.exports = mongoose.model('Thread', threadSchema)
