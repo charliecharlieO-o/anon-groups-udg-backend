@@ -29,13 +29,6 @@ const Notification = require("../models/notification");
 
 const user_list_default = "_id username last_log banned";
 
-/*DEV*/
-router.get("/list/all", (req, res) => {
-  User.find({}, (err, users) => {
-    res.json(users);
-  })
-});
-
 /* GET users that registered between X and Y dates */
 router.get("/list/by-date", passport.authenticate("jwt", {"session": false}), (req, res) => {
   if(utils.hasRequiredPriviledges(req.user.data.priviledges, ["admin_admins"])){
@@ -146,8 +139,9 @@ router.get("/:user_id/profile", passport.authenticate("jwt", {"session": false})
 });
 
 /* POST register new user by invitation */
+// soon...
 
-/* POST register new user (Must be protected) */
+/* POST register new user */
 router.post("/register", (req, res) => {
   // Create user object
 	let newUser = new User({
@@ -342,8 +336,10 @@ router.put("/profile-pic", passport.authenticate("jwt", {"session": false}), uti
 });
 
 /* PUT reset password */
+// Must send recovery mail
 
 /* PUT change email */
+// Must... change email
 
 /* PUT change user alias */
 router.put("/alias", passport.authenticate("jwt", {"session": false}), (req, res) => {
