@@ -348,8 +348,10 @@ router.put("/profile-pic", passport.authenticate("jwt", {"session": false}), uti
 router.put("/alias", passport.authenticate("jwt", {"session": false}), (req, res) => {
   const hours = Math.abs(req.user.data.alias.changed - new Date())/36e5;
   if(req.user.data.alias.handle == null || hours >= settings.alias_change_rate){
+    // Determine new alias string
     const value = (req.body.alias || req.body.alias === "" || thread.text.match(/^\s*$/) == null)?
       null : req.body.alias;
+    // Update user
     req.user.data.update(
       {
         "$set":{
@@ -359,7 +361,7 @@ router.put("/alias", passport.authenticate("jwt", {"session": false}), (req, res
         }
       }, (err) => {
       if(err){
-        res.json({ "success": false });
+        res.json({ "success": false, "valerr": utils.parseValidationErrors(validationErrors) });
       }
       else{
         res.json({ "success": true });
