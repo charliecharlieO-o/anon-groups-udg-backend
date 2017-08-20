@@ -8,7 +8,8 @@ const utils = require('../config/utils')
 const posterSchema = new Schema({
 	name: { type: String, required: true },
 	thumbnail: { type: String, required: true },
-	id: { type: Schema.ObjectId, required: true }
+	id: { type: Schema.ObjectId, required: true },
+	anon: { type: Boolean, required: true, default: false }
 },{ '_id': false })
 
 const replyExcerptSchema = new Schema({
