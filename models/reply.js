@@ -4,7 +4,8 @@ const Schema = mongoose.Schema
 const posterSchema = new Schema({
 	poster_name: { type: String, required: true },
 	poster_thumbnail: { type: String, required: true },
-	poster_id: { type: Schema.ObjectId, required: true }
+	poster_id: { type: Schema.ObjectId, required: true },
+	anon: { type: Boolean, required: true, default: false }
 },{ '_id': false })
 
 const subReply = new Schema({
