@@ -32,7 +32,7 @@ const userSchema = new Schema({
 	nipCode: { type: Number, required: true, unique: true, index: true }, // SIIAU NIP HASH
 	// This field will enforce user anonimity throughout the site
 	alias: {
-		anonId: { type: Schema.ObjectId, index: true }, //yass
+		anonId: { type: Schema.ObjectId, index: true, default: null }, //yass
 		handle: { type: String, minlength: 1, default: null, validate: aliasValidator },
 		changed: { type: Date, default: null }
 	},

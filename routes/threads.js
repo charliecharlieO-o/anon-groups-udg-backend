@@ -89,15 +89,28 @@ router.post("/:board_slug/post", passport.authenticate("jwt", {"session": false}
     Board.findOne({ "slug": req.params.board_slug, "active": true }, "_id", (err, board) => {
       if(err || !board){
         res.json({ "success": false, "error": 109 });
-      }
-      else{
+      } else{
+        // Prepare poster file
+        let poster = null;
+        if(req.user.data.alia.handle != null) {
+          poster = {
+            "name": req.user.data.alias.handle,
+            "thumbnail": "anon",
+            "id": req.user.data.alias.anonId,
+            "anon": true
+          }
+        } else {
+          poster = {
+            "name": req.user.data.username,
+            "thumbnail": req.user.data.profile_pic.thumbnail,
+            "id": req.user.data._id,
+            "anon": false
+          }
+        }
+        // Prepare thread file
         let newThread = new Thread({
           "board": board._id,
-          "poster": {
-            "name": (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username,
-            "thumbnail": (req.user.data.alias.handle != null)? "anon" : req.user.data.profile_pic.thumbnail,
-            "id": req.user.data._id
-          },
+          "poster": poster,
           "title": req.body.title,
           "text": req.body.text,
           "media": null,
@@ -294,13 +307,13 @@ router.post("/search", passport.authenticate("jwt", {"session": false}), (req, r
 });
 
 /* TEST ROUTE FOR TESTING FILE UPLOADS */
-router.post("/upload-test", passport.authenticate("jwt", {"session": false}), utils.uploadMediaFile.single("mfile"), (req, res) => {
+/*router.post("/upload-test", passport.authenticate("jwt", {"session": false}), utils.uploadMediaFile.single("mfile"), (req, res) => {
   utils.thumbnailGenerator(req.file).then((file) => {
     res.send("Finished");
   }).catch((err) => {
     res.send("Finished");
   });
-});
+});*/
 
 //=================================================================================
 //									--	REPLIES --
@@ -374,14 +387,27 @@ router.post("/:thread_id/reply", passport.authenticate("jwt", {"session": false}
         res.status(404).send("Thread Not Found");
       }
       else{
+        // Build poster file
+        let poster = null;
+        if(req.user.data.alia.handle != null) {
+          poster = {
+            "poster_name": req.user.data.alias.handle,
+            "poster_thumbnail": "anon",
+            "poster_id": req.user.data.alias.anonId,
+            "anon": true
+          }
+        } else {
+          poster = {
+            "poster_name": req.user.data.username,
+            "poster_thumbnail": req.user.data.profile_pic.thumbnail,
+            "poster_id": req.user.data._id,
+            "anon": false
+          }
+        }
         // Build reply
         let newReply = new Reply({
           "thread": thread._id,
-          "poster": {
-            "poster_name": (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username,
-            "poster_thumbnail": (req.user.data.alias.handle != null)? "anon" : req.user.data.profile_pic.thumbnail,
-            "poster_id": req.user.data._id
-          },
+          "poster": poster,
           "media": null,
           "text": req.body.text,
           "replies": []
@@ -455,17 +481,31 @@ router.post("/:thread_id/replies/:reply_id/reply", passport.authenticate("jwt", 
             res.json({ "success": false });
           }
           else{
+            // Prepare poster SubDoc
+            let poster = null;
+            if(req.user.data.alia.handle != null) {
+              poster = {
+                "poster_name": req.user.data.alias.handle,
+                "poster_thumbnail": "anon",
+                "poster_id": req.user.data.alias.anonId,
+                "anon": true
+              }
+            } else {
+              poster = {
+                "poster_name": req.user.data.username,
+                "poster_thumbnail": req.user.data.profile_pic.thumbnail,
+                "poster_id": req.user.data._id,
+                "anon": false
+              }
+            }
             // Prepare SubDocument
             let subReply = {
-              "poster": {
-                "poster_name": (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username,
-                "poster_thumbnail": (req.user.data.alias.handle != null)? "anon" : req.user.data.profile_pic.thumbnail,
-                "poster_id": req.user.data._id
-              },
+              "poster": poster,
               "to": {
                 "poster_name": reply.poster.poster_name,
                 "poster_id": reply.poster.poster_id,
-                "poster_thumbnail": reply.poster.poster_thumbnail
+                "poster_thumbnail": reply.poster.poster_thumbnail,
+                "anon": reply.poster.anon
               },
               "media": null,
               "text": req.body.text

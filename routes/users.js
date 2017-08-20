@@ -6,6 +6,8 @@ const uuid = require("uuid");
 const passport_utils = require("../config/passport-utils");
 const router = express.Router();
 
+//mongoose
+const mongoose = require("mongoose");
 // Utilities
 const config = require("../config/database");
 const utils = require("../config/utils");
@@ -148,6 +150,7 @@ router.post("/register", (req, res) => {
 		"username": req.body.username,
 		"password": req.body.password,
     "alias": {
+      "anonId": null,
       "handle": null,
       "changed": null
     },
@@ -347,8 +350,14 @@ router.put("/alias", passport.authenticate("jwt", {"session": false}), (req, res
   if(req.user.data.alias.handle == null || hours >= settings.alias_change_rate){
     const value = (req.body.alias || req.body.alias === "" || thread.text.match(/^\s*$/) == null)?
       null : req.body.alias;
-    //Check it's a valid string
-    req.user.data.update({"$set":{"alias.handle": value, "changed": new Date()}}, (err) => {
+    req.user.data.update(
+      {
+        "$set":{
+          "anonId": mongoose.Types.ObjectId,
+          "alias.handle": value,
+          "changed": new Date()
+        }
+      }, (err) => {
       if(err){
         res.json({ "success": false });
       }
