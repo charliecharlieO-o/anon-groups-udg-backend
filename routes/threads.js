@@ -92,7 +92,7 @@ router.post("/:board_slug/post", passport.authenticate("jwt", {"session": false}
       } else{
         // Prepare poster file
         let poster = null;
-        if(req.user.data.alia.handle != null) {
+        if(req.user.data.alias.handle != null) {
           poster = {
             "name": req.user.data.alias.handle,
             "thumbnail": "anon",
