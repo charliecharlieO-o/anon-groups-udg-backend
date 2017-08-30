@@ -351,21 +351,22 @@ router.put("/alias", passport.authenticate("jwt", {"session": false}), (req, res
     // Determine new alias string
     const value = (req.body.alias || req.body.alias === "" || thread.text.match(/^\s*$/) == null)?
       null : req.body.alias;
+    console.log('here');
     // Update user
     req.user.data.update(
       {
         "$set":{
-          "anonId": mongoose.Types.ObjectId,
+          "alias.anonId": mongoose.Types.ObjectId(),
           "alias.handle": value,
-          "changed": new Date()
+          "alias.changed": new Date()
         }
       }, (err) => {
-      if(err){
-        res.json({ "success": false, "valerr": utils.parseValidationErrors(validationErrors) });
-      }
-      else{
-        res.json({ "success": true });
-      }
+        if(err){
+          res.json({ "success": false, "valerr": utils.parseValidationErrors(validationErrors) });
+        }
+        else{
+          res.json({ "success": true });
+        }
     });
   }
   else{
