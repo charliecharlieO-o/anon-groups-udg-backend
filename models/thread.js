@@ -24,7 +24,7 @@ const threadSchema = new Schema({
 	board: { type: Schema.ObjectId },
 	poster: posterSchema,
 	title: { type: String, required: true, maxlength: 100 },//30 ideal max
-	text: { type: String, maxlength: 500 },
+	text: { type: String, maxlength: 1000 },
 	media: {
 		name: { type: String },
 		location: { type: String },
