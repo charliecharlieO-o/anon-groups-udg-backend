@@ -181,7 +181,7 @@ const thumbnailGenerator = function(multer_file){
         })
         .screenshots({
           'timestamps': ['20%'],
-          'filename': `${thumbnail_name}thumb.png`,
+          'filename': `${thumbnail_name}thumb.jpg`,
           'folder': multer_file.destination,
           'size': '200x150'
         });
