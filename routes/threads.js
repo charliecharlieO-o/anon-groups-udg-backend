@@ -102,7 +102,7 @@ router.post("/:board_slug/post", passport.authenticate("jwt", {"session": false}
         } else {
           poster = {
             "name": req.user.data.username,
-            "thumbnail": req.user.data.profile_pic.thumbnail,
+            "thumbnail": (req.user.data.profile_pic.thumbnail == null)? "anon": req.user.data.profile_pic.thumbnail,
             "id": req.user.data._id,
             "anon": false
           }
