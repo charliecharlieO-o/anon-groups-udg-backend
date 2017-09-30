@@ -7,7 +7,7 @@ const utils = require('../config/utils')
 
 const posterSchema = new Schema({
 	name: { type: String, required: true },
-	thumbnail: { type: String, required: true },
+	thumbnail: { type: String, default: null },
 	id: { type: Schema.ObjectId, required: true },
 	anon: { type: Boolean, required: true, default: false }
 },{ '_id': false })
@@ -16,7 +16,7 @@ const replyExcerptSchema = new Schema({
 	reply_id: { type: Schema.ObjectId }, //MUST BE REQUIRED
 	poster_name: { type: String, required: true },
 	poster_id: { type: Schema.ObjectId, required: true },
-	poster_pic: { type: String, required: true },
+	poster_pic: { type: String, default:null },
 	text_excerpt: { type: String, required: true }
 },{ '_id': false })
 

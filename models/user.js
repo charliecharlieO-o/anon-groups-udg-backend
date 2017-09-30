@@ -40,7 +40,8 @@ const userSchema = new Schema({
 		thumbnail: { type: String },
 		location: { type: String },
 		mimetype: { type: String },
-		size: { type: Number }
+		size: { type: Number },
+		default: null
 	},
 	bio: { type: String, maxlength: 300, default: null },
 	priviledges: [ { type: String, required: true, enum: settings.priviledges } ],
