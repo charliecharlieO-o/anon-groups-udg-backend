@@ -95,14 +95,14 @@ router.post("/:board_slug/post", passport.authenticate("jwt", {"session": false}
         if(req.user.data.alias.handle != null) {
           poster = {
             "name": req.user.data.alias.handle,
-            "thumbnail": "anon",
+            "thumbnail": null,
             "id": req.user.data.alias.anonId,
             "anon": true
           }
         } else {
           poster = {
             "name": req.user.data.username,
-            "thumbnail": (req.user.data.profile_pic.thumbnail == null)? "anon": req.user.data.profile_pic.thumbnail,
+            "thumbnail": (req.user.data.profile_pic.thumbnail == null)? null: req.user.data.profile_pic.thumbnail,
             "id": req.user.data._id,
             "anon": false
           }
@@ -392,14 +392,14 @@ router.post("/:thread_id/reply", passport.authenticate("jwt", {"session": false}
         if(req.user.data.alias.handle != null) {
           poster = {
             "poster_name": req.user.data.alias.handle,
-            "poster_thumbnail": "anon",
+            "poster_thumbnail": null,
             "poster_id": req.user.data.alias.anonId,
             "anon": true
           }
         } else {
           poster = {
             "poster_name": req.user.data.username,
-            "poster_thumbnail": (req.user.data.profile_pic.thumbnail == null)? "anon": req.user.data.profile_pic.thumbnail,
+            "poster_thumbnail": (req.user.data.profile_pic.thumbnail == null)? null: req.user.data.profile_pic.thumbnail,
             "poster_id": req.user.data._id,
             "anon": false
           }
@@ -445,10 +445,10 @@ router.post("/:thread_id/reply", passport.authenticate("jwt", {"session": false}
                   "reply_id": reply._id,
                   "poster_name": (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username,
                   "poster_id": req.user.data._id,
-                  "poster_pic": (req.user.data.alias.handle != null)? "anon" : req.user.data.profile_pic.thumbnail,
+                  "poster_pic": (req.user.data.alias.handle != null)? null : req.user.data.profile_pic.thumbnail,
                   "text_excerpt": reply.text.substring(0, settings.excerpts_substring)
                 });
-                thread.save();
+                thread.save((err) => {console.log(err)});
               }
             }
           });
@@ -483,10 +483,10 @@ router.post("/:thread_id/replies/:reply_id/reply", passport.authenticate("jwt", 
           else{
             // Prepare poster SubDoc
             let poster = null;
-            if(req.user.data.alia.handle != null) {
+            if(req.user.data.alias.handle != null) {
               poster = {
                 "poster_name": req.user.data.alias.handle,
-                "poster_thumbnail": "anon",
+                "poster_thumbnail": null,
                 "poster_id": req.user.data.alias.anonId,
                 "anon": true
               }
@@ -576,7 +576,7 @@ router.post("/:thread_id/replies/:reply_id/:sub_id/reply", passport.authenticate
               let newSubReply = {
                 "poster": {
                   "poster_name": (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username,
-                  "poster_thumbnail": (req.user.data.alias.handle != null)? "anon" : req.user.data.profile_pic.thumbnail,
+                  "poster_thumbnail": (req.user.data.alias.handle != null)? null : req.user.data.profile_pic.thumbnail,
                   "poster_id": req.user.data._id
                 },
                 "to": {
