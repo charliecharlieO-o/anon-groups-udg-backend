@@ -37,10 +37,12 @@ const userSchema = new Schema({
 		changed: { type: Date, default: null }
 	},
 	profile_pic: {
-		thumbnail: { type: String },
-		location: { type: String },
-		mimetype: { type: String },
-		size: { type: Number },
+		type: {
+			thumbnail: { type: String },
+			location: { type: String },
+			mimetype: { type: String },
+			size: { type: Number }
+		},
 		default: null
 	},
 	bio: { type: String, maxlength: 300, default: null },
