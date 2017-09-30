@@ -389,7 +389,7 @@ router.post("/:thread_id/reply", passport.authenticate("jwt", {"session": false}
       else{
         // Build poster file
         let poster = null;
-        if(req.user.data.alia.handle != null) {
+        if(req.user.data.alias.handle != null) {
           poster = {
             "poster_name": req.user.data.alias.handle,
             "poster_thumbnail": "anon",
@@ -399,7 +399,7 @@ router.post("/:thread_id/reply", passport.authenticate("jwt", {"session": false}
         } else {
           poster = {
             "poster_name": req.user.data.username,
-            "poster_thumbnail": req.user.data.profile_pic.thumbnail,
+            "poster_thumbnail": (req.user.data.profile_pic.thumbnail == null)? "anon": req.user.data.profile_pic.thumbnail,
             "poster_id": req.user.data._id,
             "anon": false
           }
