@@ -448,7 +448,6 @@ router.post("/:thread_id/reply", passport.authenticate("jwt", {"session": false}
                   "poster_pic": (req.user.data.alias.handle != null)? null : req.user.data.profile_pic.thumbnail,
                   "text_excerpt": reply.text.substring(0, settings.excerpts_substring)
                 });
-                thread.save((err) => {console.log(err)});
               }
             }
           });
