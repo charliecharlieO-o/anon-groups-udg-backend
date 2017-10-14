@@ -20,7 +20,7 @@ const subReply = new Schema({
 	},
 	removed: { type: Boolean, required: true, default: false },
 	text: { type: String, required: true, maxlength: 200 }
-})
+}, { timestamps: { 'createdAt': 'created_at', 'updatedAt': 'updated_at' }})
 
 subReply.pre('save', function(next){
 	let subr = this
