@@ -44,19 +44,26 @@ threadSchema.index({ title: 'text' })
 
 threadSchema.pre('save', function(next){
 	let thread = this
+	if (thread.isNew || thread.isModified('reply_count')) {
+		// Calculate popularity
+		thread.thread_decay = utils.hotAlgorithm(thread.reply_count, 0, thread.created_at)
+	}
 	if(thread.isNew || thread.isModified('text') || thread.isModified('media')){
 		// Check if post contains image or text
-		if(thread.media || (thread.text && thread.text !== '' && thread.text.match(/^\s*$/) == null)){
-			thread.thread_decay = utils.hotAlgorithm(thread.reply_count, 0, thread.created_at)
-			next()
-		}
-		else{
+		if(!thread.media || (thread.text && thread.text === '' && thread.text.match(/^\s*$/) !== null)){
 			next(new Error('Thread must contain at least media or text'))
 		}
 	}
-	else{
-		next()
-	}
+	// Everything is OK
+	next()
 })
+
+threadSchema.methods.bumpThread = function() {
+	let thread = this
+	// Calculate popularity
+	thread.thread_decay = utils.hotAlgorithm(thread.reply_count + 1, 0, thread.created_at)
+	// Increment reponses
+	thread.update({"$inc":{"reply_count": 1}, "$set":{"thread_decay": thread.thread_decay}}).exec()
+}
 
 module.exports = mongoose.model('Thread', threadSchema)

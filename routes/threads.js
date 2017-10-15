@@ -437,8 +437,8 @@ router.post("/:thread_id/reply", passport.authenticate("jwt", {"session": false}
                 utils.createAndSendNotification(thread.poster.id, "New Thread Reply",
                 `${rp} replied to your thread`, `/thread/replies/${reply._id}`);
               }
-              // Increment reponses
-              thread.update({"$inc":{"reply_count": 1}}).exec();
+              // Bump Thread
+              thread.bumpThread();
               // Push reply excerpt to thread for display
               if(thread.reply_excerpts.length < settings.excerpts_per_thread){
                 thread.reply_excerpts.push({
