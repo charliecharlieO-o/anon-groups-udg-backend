@@ -5,12 +5,12 @@ const requestSchema = new Schema({
   to: {
     id: { type: Schema.ObjectId, required: true, index: true },
     username: { type: String, required: true },
-    thumbnail_pic: { type: String, required: true }
+    thumbnail_pic: { type: String, default: null }
   },
   requested_by: {
     id: { type: Schema.ObjectId, required: true, index: true },
     username: { type: String, required: true },
-    thumbnail_pic: { type: String, required: true }
+    thumbnail_pic: { type: String, default: null }
   },
   actors: [{ type: Schema.ObjectId, required: true, index: true }],
   responded: { type: Boolean, required: true, default: false },
