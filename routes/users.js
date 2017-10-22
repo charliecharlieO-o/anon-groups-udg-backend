@@ -222,8 +222,9 @@ router.post("/login/email", (req, res) => {
 						else{
 							// If user is found and password is right create a token
 							const token = passport_utils.createToken(user, config.secret);
+              user.password = null;
 							// Return the information including token as JSON
-							res.json({"success": true, "token": token});
+							res.json({"success": true, "token": token, "user":user});
 						}
 					});
 				}
@@ -258,8 +259,9 @@ router.post("/login/standard", (req, res) => {
 						else{
 							// If user is found and password is right create a token
 							const token = passport_utils.createToken(user, config.secret);
+              user.password = null;
 							// Return the information including token as JSON
-							res.json({"success": true, "token": token});
+							res.json({"success": true, "token": token, "user": user});
 						}
 					});
 				}
