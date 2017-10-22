@@ -524,12 +524,12 @@ router.get("/request/:request_id", passport.authenticate("jwt", {"session": fals
 
 /* GET check if user has info access */
 router.get("/is-friend/:user_id", passport.authenticate("jwt", {"session": false}), (req, res) => {
-  Request.findOne({ "actors": { "$all": [req.user.data._id, req.params.user_id]}}, "has_access", (err, request) => {
+  Request.findOne({ "actors": { "$all": [req.user.data._id, req.params.user_id]}}, "has_access responded", (err, request) => {
     if(err || !request){
       res.json({ "success": false });
     }
     else{
-      res.json({ "success": true, "is_friend": request.has_access });
+      res.json({ "success": true, "doc": request });
     }
   });
 });
