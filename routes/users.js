@@ -105,7 +105,7 @@ router.get("/:user_id/profile", passport.authenticate("jwt", {"session": false})
         else{
           if(request && request.has_access){
             // if the requested user allowed requesting user, give info
-            User.findById(req.params.user_id, "username alias profile_pic bio contact_info last_log signedup_at", (err, user) => {
+            User.findById(req.params.user_id, "username profile_pic bio contact_info last_log signedup_at", (err, user) => {
               if(err || !user){
                 res.json({ "success": false });
               }
@@ -116,7 +116,7 @@ router.get("/:user_id/profile", passport.authenticate("jwt", {"session": false})
           }
           else{
             // give limited access
-            User.findById(req.params.user_id, "alias bio profile_pic contact_info", (err, user) => {
+            User.findById(req.params.user_id, "username bio profile_pic contact_info", (err, user) => {
               if(err || !user){
                 res.json({ "success": false });
               }
