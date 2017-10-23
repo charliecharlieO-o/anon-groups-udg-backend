@@ -348,8 +348,16 @@ router.post("/reset-pwd", passport.authenticate("jwt", {"session": false}), (req
   res.json({"success": false});
 });
 
+/* POST change email (send email to old one to change it) */
+rouuter.post("/reset-email/token", passport.authenticate("jwt", {"session": false}), (req, res) => {
+  // Create change token and save it in user's account
+  // send email to old email to authorize a change
+  res.json({"success" : true});
+});
+
 /* PUT change email */
 router.put("/reset-email", passport.authenticate("jwt", {"session": false}), (req, res) => {
+  // Check if change token is in user's account, if it is then update
   User.findByIdAndUpdate(req.user.data._id, {"$set": {"email": req.body.email}}, {"new":true}, (err, user) => {
     if (err || !user) {
       res.json({"success": false});
