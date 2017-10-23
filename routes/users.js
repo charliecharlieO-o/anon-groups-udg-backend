@@ -164,7 +164,8 @@ router.post("/register", (req, res) => {
   // Check user existence in SIIAU first
   siiauAuth.getUserInfo(req.body.nip, req.body.udgpwd)
     .then((response) => {
-      if(response != null){
+      // Reject teachers and invalid people
+      if(response != null && response.type !== 'P' && settings.college_centers.includes(response.campus)){
         // Set NIP code to user object
         newUser.setNIP(response.code);
         // If there are any validation errorrs return in convenient JSON

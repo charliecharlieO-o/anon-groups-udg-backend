@@ -29,7 +29,7 @@ const userSchema = new Schema({
 	username: { type: String, minlength:1, required: true, unique: true,
 							index: true, validate: userNameValidator },
 	password: { type: String, required: true },
-	nipCode: { type: Number, required: true, unique: true, index: true }, // SIIAU NIP HASH
+	nipCode: { type: Number, required: false, unique: true, index: true }, // SIIAU NIP HASH
 	// This field will enforce user anonimity throughout the site
 	alias: {
 		anonId: { type: Schema.ObjectId, index: true, default: null }, //yass
