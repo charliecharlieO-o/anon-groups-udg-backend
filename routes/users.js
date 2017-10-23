@@ -339,13 +339,18 @@ router.put("/profile-pic", passport.authenticate("jwt", {"session": false}), uti
   }
 });
 
-/* POST reset password */
-router.post("/reset-pwd", passport.authenticate("jwt", {"session": false}), (req, res) => {
+/* POST reset password (send token) */
+router.post("/reset-pwd/token", passport.authenticate("jwt", {"session": false}), (req, res) => {
   // Create token for recovery and save it to user model
   // Respond with success
   // Send email with token
-  // Receive token in body compare to one in user model and reset password
   res.json({"success": false});
+});
+
+/* PUT reset password */
+router.put("/reset-pwd", (req, res) => {
+  // Receive token in body compare to one in user model and reset password
+  res.json({"success": true});
 });
 
 /* POST change email (send email to old one to change it) */
