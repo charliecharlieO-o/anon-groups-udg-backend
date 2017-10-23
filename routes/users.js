@@ -217,6 +217,7 @@ router.post("/login/email", (req, res) => {
 							// If user is found and password is right create a token
 							const token = passport_utils.createToken(user, config.secret);
               user.password = null;
+              user.nipCode = null;
 							// Return the information including token as JSON
 							res.json({"success": true, "token": token, "user":user});
 						}
@@ -254,6 +255,7 @@ router.post("/login/standard", (req, res) => {
 							// If user is found and password is right create a token
 							const token = passport_utils.createToken(user, config.secret);
               user.password = null;
+              user.nipCode = null;
 							// Return the information including token as JSON
 							res.json({"success": true, "token": token, "user": user});
 						}
