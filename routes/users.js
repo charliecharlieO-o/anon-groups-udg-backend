@@ -134,7 +134,10 @@ router.get("/:user_id/profile", passport.authenticate("jwt", {"session": false})
 });
 
 /* POST register new user by invitation */
-// soon...
+/*router.post("/invite", passport.authenticate("jwt", {"session": false}), (req, res) => {
+  // Create invitation token and save it in invitation's collection
+  // Send token to phone Number
+});*/
 
 /* POST register new user */
 router.post("/register", (req, res) => {
