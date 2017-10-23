@@ -336,11 +336,25 @@ router.put("/profile-pic", passport.authenticate("jwt", {"session": false}), uti
   }
 });
 
-/* PUT reset password */
-// Must send recovery mail
+/* POST reset password */
+router.post("/reset-pwd", passport.authenticate("jwt", {"session": false}), (req, res) => {
+  // Create token for recovery and save it to user model
+  // Respond with success
+  // Send email with token
+  // Receive token in body compare to one in user model and reset password
+  res.json({"success": false});
+});
 
 /* PUT change email */
-// Must... change email
+router.put("/reset-email", passport.authenticate("jwt", {"session": false}), (req, res) => {
+  User.findByIdAndUpdate(req.user.data._id, {"$set": {"email": req.body.email}}, {"new":true}, (err, user) => {
+    if (err || !user) {
+      res.json({"success": false});
+    } else {
+      res.json({"success": true});
+    }
+  });
+});
 
 /* PUT change user alias */
 router.put("/alias", passport.authenticate("jwt", {"session": false}), (req, res) => {
