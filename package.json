@@ -15,7 +15,6 @@
     "bcrypt": "^1.0.2",
     "bluebird": "^3.5.0",
     "body-parser": "~1.17.2",
-    "connect-redis": "^3.3.0",
     "crc32": "^0.2.2",
     "debug": "~2.6.8",
     "express": "~4.15.3",
