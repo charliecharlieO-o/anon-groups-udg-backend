@@ -42,10 +42,9 @@ app.use(passport.initialize());
 mongoose.Promise = require('bluebird'); // Setup promise library
 mongoose.connect(config.database, (err, res) => {
   if(err){
-    console.log(`> ERROR CONNCETING TO DATABASE: ${err} \n`);
-  }
-  else{
-    console.log('> CONNECTED TO DATABASE \n');
+    console.log(`> ERROR CONNCETING TO DATABASE: ${err}`);
+  } else {
+    console.log('> CONNECTED TO DATABASE');
   }
 });
 

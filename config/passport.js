@@ -17,17 +17,15 @@ module.exports = (passport) => {
 	// Passport auth strategy
 	passport.use(new JwtStrategy(opts,  (jwt_payload, done) => {
 		// Take unencrypted payload and check user last requests
-		// if creation POSIX is older than 24 hours or last request modified user profile, reload user info
+		// if creation POSIX is older than 48 hours then "Unauthorized"
 		// if token doesnt exist in Redis "Unauthorized"
 		// if user is banned then "Unauthorized"
 		// store active tokens in user to give the user the ability to logout from devices
 		User.findOne({"_id": jwt_payload.iss}, user_defaults, (err, user) => {
-			// This field will contain user and the refreshed token
 			if(err){
 				return done(err, false);
 			}
 			if(user){
-				//const credentials = user;
 				const credentials = {
 					"data": user,
 					"new_token": utils.createToken(user, config.secret)
