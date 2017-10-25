@@ -209,4 +209,23 @@ router.get("/list/new", passport.authenticate("jwt", {"session": false}), (req, 
 	});
 });
 
+/* POST search for a board */
+router.post("/search", passport.authenticate("jwt", {"session": false}), (req, res) => {
+	Board.find(
+    { "$text": { "$search": req.body.query }},
+    { "score": { "$meta": "textScore"}}
+  ).sort(
+    { "score": { "$meta": "textScore" }}
+  ).limit(
+    settings.max_board_results
+  ).exec((err, threads) => {
+    if(err || !threads){
+      res.json({ "success": false });
+    }
+    else{
+      res.json({ "success": true, "doc": threads });
+    }
+  });
+});
+
 module.exports = router;

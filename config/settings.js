@@ -9,6 +9,7 @@ module.exports = {
   'max_board_search_count': 20,
   'recent_search_range': 7200, // Seconds
 	'max_thread_search_resutls': 250,
+	'max_board_results': 20,
 	'excerpts_per_thread': 3,
 	'excerpts_substring': 30,
 	'max_user_search_results': 50,
