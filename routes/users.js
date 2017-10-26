@@ -157,7 +157,7 @@ router.post("/register", (req, res) => {
       "size": null
     },
     "bio": null,
-		"contact_info": [],
+		"contact_info": null,
 		"info_requests": [],
 		"alerts": [],
 		"email": req.body.email,
