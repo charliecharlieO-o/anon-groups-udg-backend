@@ -150,7 +150,11 @@ router.put("/:board_slug", passport.authenticate("jwt", {"session": false}), (re
 	// Check user is allowed to update board
 	if(utils.hasRequiredPriviledges(req.user.data.priviledges, ["edit_board"])){
 		// Preprocess and clean data
-		const json_data = JSON.parse(req.body.object);
+		const json_data = utils.parseJSON(req.body.object);
+		// Check if it was a valid JSON
+		if (json_data === null) {
+			res.json({"success": false});
+		}
 		Board.findOneAndUpdate({ "slug": req.params.board_slug },
 		{
 			"$set":{

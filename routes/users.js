@@ -283,7 +283,7 @@ router.put("/update-profile", passport.authenticate("jwt", {"session": false}), 
       else{
         // Add profile pic
         const user_info = {
-          "contact_info": (req.body.contact_info != null)? JSON.parse(req.body.contact_info) : user.contact_info,
+          "contact_info": (req.body.contact_info != null)? req.body.contact_info : user.contact_info,
           "bio": (req.body.bio != null)? req.body.bio : user.bio
         };
         user.contact_info = user_info.contact_info;
@@ -515,7 +515,7 @@ router.delete("/remove", passport.authenticate("jwt", {"session": false}), (req,
 /* POST upgrade a user's priviledges or remove them */ //(GENERATES NOTIFICATION)
 router.post("/promote", passport.authenticate("jwt", {"session": false}), (req, res) => {
   if(utils.hasRequiredPriviledges(req.user.data.priviledges, ["promote_user"])){
-    const priviledges = (req.body.priviledges != null)? JSON.parse(req.body.priviledges) : [];
+    const priviledges = (req.body.priviledges)? req.body.priviledges : [];
     User.findOneAndUpdate({ "_id": req.body.user_id, "is_super": false },
     {
       "$set": {

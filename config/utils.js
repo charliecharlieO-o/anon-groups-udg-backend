@@ -58,13 +58,22 @@ const hotAlgorithm = (ups, downs, date) => {
 
 // Safely parse JSON with try catch
 const parseJSON = (json, callback) => {
-  let parsed;
-  try{
-    parsed = JSON.parse(json);
-    return callback(null, parsed);
-  }
-  catch(e){
-    return callback(e, null);
+  if (callback) {
+    let parsed;
+    try{
+      parsed = JSON.parse(json);
+      return callback(null, parsed);
+    } catch(e){
+      return callback(e, null);
+    }
+  } else {
+    let parsed;
+    try{
+      parsed = JSON.parse(json);
+      return parsed;
+    } catch(e){
+      return null;
+    }
   }
 };
 
