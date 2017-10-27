@@ -272,38 +272,6 @@ router.post("/login/standard", (req, res) => {
 	});
 });
 
-/* PUT edit user profile */ //INCOMPLETE
-router.put("/update-profile", passport.authenticate("jwt", {"session": false}), (req, res) => {
-  if(utils.hasRequiredPriviledges(req.user.data.priviledges, ["edit_user"]) || req.user.data._id.equals(req.body.user_id)){
-    // Edit profile information
-    User.findById(req.body.user_id, (err, user) => {
-      if(err || !user || (user.is_super && !user._id.equals(req.user.data._id))){
-        res.json({ "success": false });
-      }
-      else{
-        // Add profile pic
-        const user_info = {
-          "contact_info": (req.body.contact_info != null)? req.body.contact_info : user.contact_info,
-          "bio": (req.body.bio != null)? req.body.bio : user.bio
-        };
-        user.contact_info = user_info.contact_info;
-        user.phone_number = user_info.phone_number;
-        user.save((err) => {
-          if(err){
-            res.json({ "success": false });
-          }
-          else{
-            res.json({ "success": true });
-          }
-        });
-      }
-    });
-  }
-  else{
-    res.status(401).send("Unauthorized");
-  }
-});
-
 /* PUT update profile picture */
 router.put("/profile-pic", passport.authenticate("jwt", {"session": false}), utils.uploadMediaFile.single("mfile"), (req, res) => {
   if(settings.image_mime_type.includes(req.file.mimetype)){
@@ -337,6 +305,56 @@ router.put("/profile-pic", passport.authenticate("jwt", {"session": false}), uti
     if(req.file)
       utils.deleteFile(req.file.path); // :(
   }
+});
+
+/* PUT update bio */
+router.put("/update/bio", passport.authenticate("jwt", {"session": false}), (req, res) => {
+  // Edit profile information
+  User.findByIdAndUpdate(req.user.data._id, {"$set": {"bio": req.body.bio}}, {"new":true}, (err, user) => {
+    if(err || !user){
+      res.json({ "success": false });
+    } else {
+      res.json({"success": true, "doc": user.bio})
+    }
+  });
+});
+
+/* PUT update social networks */
+router.put("/update/networks", passport.authenticate("jwt", {"session": false}), (req, res) => {
+  // Edit profile information
+  User.findById(req.user.data._id, (err, user) => {
+    if(err || !user){
+      res.json({"success": false});
+    } else {
+      const networkToAdd = { 'network_name': req.body.network_name, 'network_contact': req.body.contact };
+      if (!user.contact_info || user.contact_info.length === 0) {
+        // User has no network info
+        user.contact_info = networkToAdd;
+        user.save((err) => {
+          if (err) {
+            res.status(500).send("error");
+          } else {
+            res.json({"success": true, "doc": user.contact_info});
+          }
+        });
+      } else {
+        // User has network info
+        let networkIdx = user.contact_info.findIndex(x => x.network_name === req.body.network_name);
+        if (networkIdx < 0) { // Didn't find  element
+          user.contact_info.push(networkToAdd);
+        } else { // Found element
+          (user.contact_info[networkIdx]).network_contact = networkToAdd.network_contact
+        }
+        user.save((err) => {
+          if (err) {
+            res.status(500).send("error");
+          } else {
+            res.json({"success": true, "doc": user.contact_info})
+          }
+        });
+      }
+    }
+  });
 });
 
 /* POST reset password (send token) */

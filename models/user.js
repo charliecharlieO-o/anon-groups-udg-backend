@@ -16,7 +16,7 @@ const validators = require('../config/validators')
 
 const userContactInfo = new Schema({
 	network_name : { type: String, required: true },
-	network_contact: { type: String, required: true },
+	network_contact: { type: String },
 }, { '_id': false });
 
 // Custom validation arrays
@@ -46,12 +46,7 @@ const userSchema = new Schema({
 	},
 	bio: { type: String, maxlength: 300, default: null },
 	priviledges: [ { type: String, required: true, enum: settings.priviledges } ],
-	contact_info: {
-		'facebook': userContactInfo,
-		'instagram': userContactInfo,
-		'snapchat': userContactInfo,
-		'twitter': userContactInfo
-	},
+	contact_info: [ userContactInfo ],
 	email: { type: String, required: true, unique: true, index: true, validate: emailValidator },
 	new_notifications: { type: Number, required: true, default: 0 },
 	new_requests: { type: Number, required: true, default: 0 },
