@@ -244,7 +244,6 @@ router.get("/list/division/:admin_division", passport.authenticate("jwt", {"sess
   if(req.user.data.is_super || utils.hasRequiredPriviledges(req.user.data.priviledges, ["admin_admins"])){
     Admin.find({ "divisions": {"$all": req.params.admin_division}}).sort({ "user.name":1 }).exec((err, admins) => {
       if(err || !admins){
-        console.log(err);
         res.json({ "success": false });
       }
       else{
@@ -390,7 +389,6 @@ router.post("/post-issue", passport.authenticate("jwt", {"session": false}), (re
   });
   Issue.create(newIssue, (err, issue) => {
     if(err || !issue){
-      console.log(err);
       res.json({ "success": false });
     }
     else{

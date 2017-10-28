@@ -397,7 +397,6 @@ router.put("/alias", passport.authenticate("jwt", {"session": false}), (req, res
     // Determine new alias string
     const value = (req.body.alias || req.body.alias === "" || thread.text.match(/^\s*$/) == null)?
       null : req.body.alias;
-    console.log('here');
     // Update user
     req.user.data.update(
       {
