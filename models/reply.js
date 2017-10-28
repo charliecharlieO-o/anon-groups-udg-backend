@@ -6,7 +6,7 @@ const posterSchema = new Schema({
 	poster_thumbnail: { type: String, default: null },
 	poster_id: { type: Schema.ObjectId, required: true },
 	anon: { type: Boolean, required: true, default: false }
-},{ '_id': false })
+}, { '_id': false })
 
 const subReply = new Schema({
 	poster: posterSchema,
@@ -19,7 +19,7 @@ const subReply = new Schema({
 		thumbnail: { type: String }
 	},
 	removed: { type: Boolean, required: true, default: false },
-	text: { type: String, required: true, maxlength: 200 }
+	text: { type: String, required: true, maxlength: 500 }
 }, { timestamps: { 'createdAt': 'created_at', 'updatedAt': 'updated_at' }})
 
 subReply.pre('save', function(next){
@@ -27,12 +27,10 @@ subReply.pre('save', function(next){
 	if(subr.isNew || subr.isModified('media') || subr.isModified('text')){
 		if(subr.media || (subr.text && subr.text !== '' && subr.text.match(/^\s*$/) == null)){
 			next()
-		}
-		else{
+		} else {
 			next(new Error('Reply must contain at least media or text'))
 		}
-	}
-	else{
+	} else {
 		next()
 	}
 })
@@ -48,7 +46,7 @@ const replySchema = new Schema({
 		thumbnail: { type: String }
 	},
 	removed: { type: Boolean, required: true, default: false },
-	text: { type: String, required: true, maxlength: 500 },
+	text: { type: String, required: true, maxlength: 800 },
 	reply_count: { type: Number, required: true, default: 0 },
 	replies: [ subReply ]
 }, { timestamps: { 'createdAt': 'created_at', 'updatedAt': 'updated_at' }})
@@ -58,12 +56,10 @@ replySchema.pre('save', function(next){
 	if(reply.isNew || reply.isModified('media') || reply.isModified('text')){
 		if(reply.media || (reply.text && reply.text !== '' && reply.text.match(/^\s*$/) == null)){
 			next()
-		}
-		else{
+		} else {
 			next(new Error('Reply must contain at least media or text'))
 		}
-	}
-	else{
+	} else {
 		next()
 	}
 })
