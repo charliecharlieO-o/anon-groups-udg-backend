@@ -107,13 +107,13 @@ const parseValidationErrors = (err) => {
 //=================================================================================
 
 // Create a new notification
-const createAndSendNotification = (owner_id, title, description, url, callback) => {
+const createAndSendNotification = (owner_id, title, description, metainfo, callback) => {
   // Create the notification in the database and up user notification count
   let notification = new Notification({
     'owner': owner_id,
     'title': title,
     'description': description,
-    'reference_url': url
+    'meta': metainfo
   });
   Notification.create(notification, (err, notification) => {
     if(typeof callback === 'function'){

@@ -5,7 +5,7 @@ const notificationSchema = new Schema({
   owner: { type: Schema.ObjectId, required: true, index: true },
   title: { type: String, required: true },
 	description: { type: String, required: true },
-  reference_url: { type: String, required: false, default: null },
+  meta: { type: Schema.Types.Mixed, required: false, default: null },
   seen: { type: Boolean, required: true, default: false },
   date_seen: { type: Date, default: null }
 }, { timestamps: { 'createdAt': 'date_alerted' }})

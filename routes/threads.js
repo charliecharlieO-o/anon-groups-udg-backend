@@ -435,7 +435,7 @@ router.post("/:thread_id/reply", passport.authenticate("jwt", {"session": false}
               if(req.user.data._id !== thread.poster.id){
                 const rp = (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username;
                 utils.createAndSendNotification(thread.poster.id, "New Thread Reply",
-                `${rp} replied to your thread`, `/thread/replies/${reply._id}`);
+                `${rp} replied to your thread`, { 'type': 'threadReply', 'threadId': thread._id, 'replyId': reply._id });
               }
               // Bump Thread
               thread.bumpThread();
@@ -530,12 +530,12 @@ router.post("/:thread_id/replies/:reply_id/reply", passport.authenticate("jwt", 
                     const rp = (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username;
                     if(req.user.data._id != reply.poster.poster_id){
                       utils.createAndSendNotification(reply.poster.poster_id, "New Reply",
-                        `${rp} replied under your comment.`, `/thread/replies/${reply._id}`);
+                        `${rp} replied under your comment.`, { 'type': 'reply', 'threadId': thread._id, 'replyId': reply._id });
                     }
                     // Send notification to 'TO'
                     if(subReply.to != null){
                       utils.createAndSendNotification(subReply.to.poster_id, "New Reply",
-                      `${rp} replied to you.`, `/thread/replies/${reply._id}`);
+                      `${rp} replied to you.`, { 'type': 'reply', 'threadId': thread._id, 'replyId': reply._id });
                     }
                   }
                 });
@@ -607,12 +607,12 @@ router.post("/:thread_id/replies/:reply_id/:sub_id/reply", passport.authenticate
                       const rp = (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username;
                       if(req.user.data._id != reply.poster.poster_id){
                         utils.createAndSendNotification(reply.poster.poster_id, "New Reply",
-                          `${rp} replied under your comment.`, `/thread/replies/${reply._id}`);
+                          `${rp} replied under your comment.`, { 'type': 'subreply', 'threadId': thread._id, 'replyId': reply._id });
                       }
                       // Send notification to 'TO'
                       if(newSubReply.to != null){
                         utils.createAndSendNotification(newSubReply.to.poster_id, "New Reply",
-                        `${rp} replied to you.`, `/thread/replies/${reply._id}`);
+                        `${rp} replied to you.`, { 'type': 'subreply', 'threadId': thread._id, 'replyId': reply._id });
                       }
                     }
                   });

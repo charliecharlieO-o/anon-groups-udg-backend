@@ -58,7 +58,7 @@ router.post("/appoint", passport.authenticate("jwt", {"session": false}), (req, 
           else{
             // Notificate user about promotion
             utils.createAndSendNotification(user._id, "You have been promoted",
-              "You now have admin status.", `/admin/uid/${user._id}`);
+              "You now have admin status.", { 'type': 'admin', 'objId': user._id });
             // Send successfull response
             res.json({ "success": true, "doc": admin });
           }
@@ -298,7 +298,7 @@ router.put("/reassign/board/", passport.authenticate("jwt", {"session": false}),
           else{
             // Notificate user about reassignment
             utils.createAndSendNotification(admin.user.id, "You have been reassigned",
-              "You have been reassigned to a different board.", `/admin/id/${admin._id}`);
+              "You have been reassigned to a different board.", { 'type': 'admin', 'objId': user._id });
             // Return a successfull response
             res.json({ "success": true, "doc": admin });
           }
@@ -331,7 +331,7 @@ router.put("/reassign/divisions", passport.authenticate("jwt", {"session": false
           else{
             // Notificate user about reassignment
             utils.createAndSendNotification(admin.user.id, "You have been reassigned",
-              "Your assigned divisions have changed", `/admin/id/${admin._id}`);
+              "Your assigned divisions have changed", { 'type': 'admin', 'objId': user._id });
             // Return successfull response
             res.json({ "success": true, "doc": admin });
           }
