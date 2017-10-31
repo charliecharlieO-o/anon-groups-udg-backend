@@ -393,16 +393,16 @@ router.put("/reset-email", passport.authenticate("jwt", {"session": false}), (re
 /* PUT change user alias */
 router.put("/alias", passport.authenticate("jwt", {"session": false}), (req, res) => {
   const hours = Math.abs(req.user.data.alias.changed - new Date())/36e5;
-  if(req.user.data.alias.handle == null || hours >= settings.alias_change_rate){
+  if(req.user.data.alias.handle === null || hours >= settings.alias_change_rate){
     // Determine new alias string
-    const value = (req.body.alias || req.body.alias === "" || thread.text.match(/^\s*$/) == null)?
+    const aliasHandle = (!req.body.alias || req.body.alias === "" || req.body.alias.match(/^\s*$/) !== null)?
       null : req.body.alias;
     // Update user
-    req.user.data.update(
+    User.findByIdAndUpdate(req.user.data._id,
       {
         "$set":{
           "alias.anonId": mongoose.Types.ObjectId(),
-          "alias.handle": value,
+          "alias.handle": aliasHandle,
           "alias.changed": new Date()
         }
       }, (err) => {
@@ -415,7 +415,7 @@ router.put("/alias", passport.authenticate("jwt", {"session": false}), (req, res
     });
   }
   else{
-    res.json({ "success": false, "doc": hours });
+    res.json({ "success": false, "err": "hours"});
   }
 });
 

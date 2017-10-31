@@ -274,7 +274,7 @@ router.put("/kill/:thread_id", passport.authenticate("jwt", {"session": false}),
       }
       else{
         // Send notification to OP
-        utils.createAndSendNotification(thread.poster.id, "Your content was removed",
+        utils.createAndSendNotification(thread.poster.id, thread.poster.anon, "Your content was removed",
           `Your reply was removed due to ${req.body.reason}`, null);
         res.json({ "success": true });
       }
@@ -434,7 +434,7 @@ router.post("/:thread_id/reply", passport.authenticate("jwt", {"session": false}
               // Notificate OP about reply if not OP
               if(req.user.data._id !== thread.poster.id){
                 const rp = (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username;
-                utils.createAndSendNotification(thread.poster.id, "New Thread Reply",
+                utils.createAndSendNotification(thread.poster.id, thread.poster.anon, "New Thread Reply",
                 `${rp} replied to your thread`, { 'type': 'threadReply', 'threadId': thread._id, 'replyId': reply._id });
               }
               // Bump Thread
@@ -525,16 +525,16 @@ router.post("/:thread_id/replies/:reply_id/reply", passport.authenticate("jwt", 
                     res.json({ "success": false });
                   }
                   else{
-                    res.json({ "success": true });
+                    res.json({ "success": true, "doc": subReply });
                     // Notificate OP
                     const rp = (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username;
                     if(req.user.data._id != reply.poster.poster_id){
-                      utils.createAndSendNotification(reply.poster.poster_id, "New Reply",
+                      utils.createAndSendNotification(reply.poster.poster_id, reply.poster.anon, "New Reply",
                         `${rp} replied under your comment.`, { 'type': 'reply', 'threadId': thread._id, 'replyId': reply._id });
                     }
                     // Send notification to 'TO'
                     if(subReply.to != null){
-                      utils.createAndSendNotification(subReply.to.poster_id, "New Reply",
+                      utils.createAndSendNotification(subReply.to.poster_id, subReply.poster.anon, "New Reply",
                       `${rp} replied to you.`, { 'type': 'reply', 'threadId': thread._id, 'replyId': reply._id });
                     }
                   }
@@ -571,17 +571,31 @@ router.post("/:thread_id/replies/:reply_id/:sub_id/reply", passport.authenticate
             }
             else{
               const subreply = reply.replies.id(req.params.sub_id);
+              // Prepare poster SubDoc
+              let poster = null;
+              if(req.user.data.alias.handle != null) {
+                poster = {
+                  "poster_name": req.user.data.alias.handle,
+                  "poster_thumbnail": null,
+                  "poster_id": req.user.data.alias.anonId,
+                  "anon": true
+                }
+              } else {
+                poster = {
+                  "poster_name": req.user.data.username,
+                  "poster_thumbnail": req.user.data.profile_pic.thumbnail,
+                  "poster_id": req.user.data._id,
+                  "anon": false
+                }
+              }
               // Prepare SubDocument
               let newSubReply = {
-                "poster": {
-                  "poster_name": (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username,
-                  "poster_thumbnail": (req.user.data.alias.handle != null)? null : req.user.data.profile_pic.thumbnail,
-                  "poster_id": req.user.data._id
-                },
+                "poster": poster,
                 "to": {
                   "poster_name": subreply.poster.poster_name,
                   "poster_id": subreply.poster.poster_id,
-                  "poster_thumbnail": subreply.poster.poster_thumbnail
+                  "poster_thumbnail": subreply.poster.poster_thumbnail,
+                  "anon": reply.poster.anon
                 },
                 "media": null,
                 "text": req.body.text
@@ -602,16 +616,16 @@ router.post("/:thread_id/replies/:reply_id/:sub_id/reply", passport.authenticate
                       res.json({ "success": false });
                     }
                     else{
-                      res.json({ "success": true });
+                      res.json({ "success": true, "doc": newSubReply });
                       // Notificate OP
                       const rp = (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username;
                       if(req.user.data._id != reply.poster.poster_id){
-                        utils.createAndSendNotification(reply.poster.poster_id, "New Reply",
+                        utils.createAndSendNotification(reply.poster.poster_id, reply.poster.anon, "New Reply",
                           `${rp} replied under your comment.`, { 'type': 'subreply', 'threadId': thread._id, 'replyId': reply._id });
                       }
                       // Send notification to 'TO'
                       if(newSubReply.to != null){
-                        utils.createAndSendNotification(newSubReply.to.poster_id, "New Reply",
+                        utils.createAndSendNotification(newSubReply.to.poster_id, newSubReply.to.anon, "New Reply",
                         `${rp} replied to you.`, { 'type': 'subreply', 'threadId': thread._id, 'replyId': reply._id });
                       }
                     }
@@ -649,7 +663,7 @@ router.put("/replies/kill/:reply_id", passport.authenticate("jwt", {"session": f
       }
       else{
         // Send notification to OP
-        utils.createAndSendNotification(reply.poster.poster_id, "Your content was removed",
+        utils.createAndSendNotification(reply.poster.poster_id, reply.poster.anon, "Your content was removed",
           `Your reply was removed due to ${req.body.reason}`, null);
         // Send successfull response
         res.json({ "success": true });
@@ -678,7 +692,8 @@ router.put("/replies/kill/:reply_id/:sreply_id", passport.authenticate("jwt", {"
       }
       else{
         // Notify OP
-        utils.createAndSendNotification(subreply.replies.id(req.params.sreply_id).poster.poster_id, "Your content was removed",
+        const subreply = subreply.replies.id(req.params.sreply_id)
+        utils.createAndSendNotification(subreply.poster.poster_id,subreply.poster.anon, "Your content was removed",
           `Your reply was removed due to ${req.body.reason}`, null);
         // Send successfull response
         res.json({ "success": true });
