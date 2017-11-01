@@ -741,7 +741,7 @@ router.put('/request/:request_id/respond', passport.authenticate('jwt', {'sessio
       // Notificate requesting user that he has been accepted
       if(request.has_access == true){
         utils.createAndSendNotification(request.requested_by.id, `${request.to.username} accepted your request`,
-          'You now have access to user's networking data', `/user/${request.to.id}/profile`)
+          'You now have access to user\'s networking data', `/user/${request.to.id}/profile`)
       }
       // Decrease user's new_requests counter
       req.user.data.update({ '$inc': { 'new_requests': -1 }}).exec()
@@ -767,7 +767,7 @@ router.put('/request/:request_id/edit', passport.authenticate('jwt', {'session':
       // Notificate requesting user that he has been accepted
       if(request.has_access == true){
         utils.createAndSendNotification(request.requested_by.id, `${request.to.username} accepted your request`,
-          'You now have access to user's networking data', `/user/${request.to.id}/profile`)
+          'You now have access to user\'s networking data', `/user/${request.to.id}/profile`)
       }
       // Send successfull response
       res.json({ 'success': true })
@@ -775,7 +775,7 @@ router.put('/request/:request_id/edit', passport.authenticate('jwt', {'session':
   })
 })
 
-/* DELETE revoke an user's info access */
+/* DELETE revoke an user\'s info access */
 router.delete('/request/:request_id/remove', passport.authenticate('jwt', {'session': false}), (req, res) => {
   Request.findOne({'_id': req.params.request_id, 'actors': { '$in': [req.user.data._id]}}, (err, request) => {
     request.remove((err) => {
