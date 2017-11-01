@@ -393,7 +393,7 @@ router.put('/reset-email', passport.authenticate('jwt', {'session': false}), (re
 /* PUT change user alias */
 router.put('/alias', passport.authenticate('jwt', {'session': false}), (req, res) => {
   const hours = Math.abs(req.user.data.alias.changed - new Date())/36e5
-  if(!req.body.alias || req.user.data.alias.handle === null || hours >= settings.alias_change_rate){
+  if(req.user.data.alias.handle === null || hours >= settings.alias_change_rate){
     // Determine new alias string
     const aliasHandle = (!req.body.alias || req.body.alias === '' || req.body.alias.match(/^\s*$/) !== null)?
       null : req.body.alias
