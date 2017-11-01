@@ -357,7 +357,7 @@ router.put('/update/networks', passport.authenticate('jwt', {'session': false}),
   })
 })
 
-/* POST reset password (send token) */
+/* POST reset password (send token) PENDING */
 router.post('/reset-pwd/token', passport.authenticate('jwt', {'session': false}), (req, res) => {
   // Create token for recovery and save it to user model
   // Respond with success
@@ -365,13 +365,13 @@ router.post('/reset-pwd/token', passport.authenticate('jwt', {'session': false})
   res.json({'success': false})
 })
 
-/* PUT reset password */
+/* PUT reset password PENDING */
 router.put('/reset-pwd', (req, res) => {
   // Receive token in body compare to one in user model and reset password
   res.json({'success': true})
 })
 
-/* POST change email (send email to old one to change it) */
+/* POST change email (send email to old one to change it) PENDING */
 router.post('/reset-email/token', passport.authenticate('jwt', {'session': false}), (req, res) => {
   // Create change token and save it in user's account
   // send email to old email to authorize a change
@@ -463,6 +463,10 @@ router.put('/ban', passport.authenticate('jwt', {'session': false}), (req, res) 
       }
       else{
         res.json({ 'success': true })
+        utils.createAndSendNotification(req.body.user_id, false, req.user.data, `You are banned`,
+        'You were banned for violating the site\'s policies', { 'type': 'ban' }).catch((err) => {
+          // Handle error
+        })
       }
     })
   }
@@ -544,6 +548,10 @@ router.post('/promote', passport.authenticate('jwt', {'session': false}), (req, 
       }
       else{
         res.json({ 'success': true })
+        utils.createAndSendNotification(req.body.user_id, false, req.user.data, `Congratulations!`,
+        'You were promoted', { 'type': 'promotion'}).catch((err) => {
+          // Handle error
+        })
       }
     })
   }
@@ -621,9 +629,10 @@ router.post('/request', passport.authenticate('jwt', {'session': false}),(req, r
                 }
                 else{
                   // Notify user
-                  const stringAlias = (req.user.data.alias.handle != null)? `alias ${req.user.data.alias.handle}`: ''
-                  utils.createAndSendNotification(request.to.id, `New Networking Request`,
-                    `${req.user.data.username} ${stringAlias} sent you a request`, `/user/${req.user.data.id}/profile`)
+                  utils.createAndSendNotification(request.to.id, false, req.user.data, `New Networking Request`,
+                  `${req.user.data.username} sent you a request`, { 'type': 'request', 'friendId': req.user.data.id }).catch((err) => {
+                    // Handle error
+                  })
                   // Increment request count
                   user.update({ '$inc': { 'new_requests': 1 }}).exec()
                   res.json({ 'success': true })
@@ -740,8 +749,10 @@ router.put('/request/:request_id/respond', passport.authenticate('jwt', {'sessio
     else{
       // Notificate requesting user that he has been accepted
       if(request.has_access == true){
-        utils.createAndSendNotification(request.requested_by.id, `${request.to.username} accepted your request`,
-          'You now have access to user\'s networking data', `/user/${request.to.id}/profile`)
+        utils.createAndSendNotification(request.requested_by.id, false, req.user.data, `${request.to.username} accepted your request`,
+        'You now have access to user\'s networking data', { 'type': 'friendRes', 'friendId': request.to.id }).catch((err) => {
+          // Handle error
+        })
       }
       // Decrease user's new_requests counter
       req.user.data.update({ '$inc': { 'new_requests': -1 }}).exec()

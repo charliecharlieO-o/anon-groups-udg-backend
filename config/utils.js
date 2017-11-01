@@ -107,32 +107,30 @@ const parseValidationErrors = (err) => {
 //=================================================================================
 
 // Create a new notification
-const createAndSendNotification = (owner_id, anon, title, description, metainfo, callback) => {
-  // Obtain user, if it is anonymous then we use the alias
-  const query = (anon === true) ? { 'alias.anonId': owner_id } : { '_id': owner_id };
-  User.findOne(query, (err, user) => {
-    if (err) {
-      return callback(err)
-    } else {
+const createAndSendNotification = async (ownerId, isAnon, sender, title, description, metainfo) => {
+  try {
+    const query = (isAnon === true) ? { 'alias.anonId': ownerId } : { '_id': ownerId }
+    const user = await User.findOne(query).exec()
+    // Check if triggering user exists and isn't recipient user
+    const isSameId = user._id.equals(sender._id)
+    const isSameAnon = user.alias.anonId && sender.alias && user.alias.anonId.equals(sender.alias.anonId)
+    if (user && !isSameId && !isSameAnon) {
       // Create the notification in the database and up user notification count
-      let notification = new Notification({
+      const notification = new Notification({
         'owner': user._id,
         'title': title,
         'description': description,
         'meta': metainfo
-      });
-      Notification.create(notification, (err, notification) => {
-        if(typeof callback === 'function'){
-          User.findOneAndUpdate({ '_id': owner_id }, { '$inc': { 'new_notifications': 1 }}); // Increment notification counter
-          return callback(err, notification);
-        }
-        else{
-          return (err == null);
-        }
-      });
+      })
+      const savedNotif = await Notification.create(notification)
+      return Promise.resolve(savedNotif)
+    } else {
+      return Promise.resolve(null)
     }
-  });
-};
+  } catch (err) {
+    return Promise.reject(new Error(err))
+  }
+}
 
 //=================================================================================
 //									--	MULTER & MEDIA STORAGE --

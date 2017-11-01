@@ -57,8 +57,10 @@ router.post('/appoint', passport.authenticate('jwt', {'session': false}), (req, 
           }
           else{
             // Notificate user about promotion
-            utils.createAndSendNotification(user._id, 'You have been promoted',
-              'You now have admin status.', { 'type': 'admin', 'objId': user._id })
+            utils.createAndSendNotification(user._id, false, req.user.data, 'You have been promoted',
+            'You now have admin status.', { 'type': 'admin', 'objId': user._id }).catch((err) => {
+              // Handle error
+            })
             // Send successfull response
             res.json({ 'success': true, 'doc': admin })
           }
@@ -297,8 +299,10 @@ router.put('/reassign/board/', passport.authenticate('jwt', {'session': false}),
           }
           else{
             // Notificate user about reassignment
-            utils.createAndSendNotification(admin.user.id, 'You have been reassigned',
-              'You have been reassigned to a different board.', { 'type': 'admin', 'objId': user._id })
+            utils.createAndSendNotification(admin.user.id, false, req.user.data, 'You have been reassigned',
+            'You have been reassigned to a different board.', { 'type': 'admin', 'objId': user._id }).catch((err) => {
+              // Handle error
+            })
             // Return a successfull response
             res.json({ 'success': true, 'doc': admin })
           }
@@ -330,8 +334,10 @@ router.put('/reassign/divisions', passport.authenticate('jwt', {'session': false
           }
           else{
             // Notificate user about reassignment
-            utils.createAndSendNotification(admin.user.id, 'You have been reassigned',
-              'Your assigned divisions have changed', { 'type': 'admin', 'objId': user._id })
+            utils.createAndSendNotification(admin.user.id, false, req.user.data, 'You have been reassigned',
+            'Your assigned divisions have changed', { 'type': 'admin', 'objId': user._id }).catch((err) => {
+              // Handle error
+            })
             // Return successfull response
             res.json({ 'success': true, 'doc': admin })
           }
@@ -353,8 +359,10 @@ router.delete('/remove', passport.authenticate('jwt', {'session': false}), (req,
       }
       else {
         // Notificate user about dismissal
-        utils.createAndSendNotification(admin.user.id, 'You have been dismissed',
-          'You no longer have admin status', null)
+        utils.createAndSendNotification(admin.user.id, false, req.user.data, 'You have been dismissed',
+        'You no longer have admin status', null).catch((err) => {
+          // Handle error
+        })
         // Return successfull response
         res.json({ 'success': true })
       }
