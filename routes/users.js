@@ -76,7 +76,7 @@ router.post('/search/by-priviledge', passport.authenticate('jwt', {'session': fa
 router.get('/:user_id/profile', passport.authenticate('jwt', {'session': false}), (req, res) => {
   // If an admin is requestinig the profile
   if(utils.hasRequiredPriviledges(req.user.data.priviledges, ['admin_admins'])){
-    User.findById(req.params.user_id, { 'password': 0 }, (err, user) => {
+    User.findById(req.params.user_id, { 'password': 0, 'nipCode': 0 }, (err, user) => {
       if(err || !user){
         res.json({ 'success': false })
       }
@@ -393,7 +393,7 @@ router.put('/reset-email', passport.authenticate('jwt', {'session': false}), (re
 /* PUT change user alias */
 router.put('/alias', passport.authenticate('jwt', {'session': false}), (req, res) => {
   const hours = Math.abs(req.user.data.alias.changed - new Date())/36e5
-  if(req.user.data.alias.handle === null || hours >= settings.alias_change_rate){
+  if(!req.body.alias || req.user.data.alias.handle === null || hours >= settings.alias_change_rate){
     // Determine new alias string
     const aliasHandle = (!req.body.alias || req.body.alias === '' || req.body.alias.match(/^\s*$/) !== null)?
       null : req.body.alias
