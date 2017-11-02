@@ -273,7 +273,7 @@ router.post('/login/standard', (req, res) => {
 })
 
 /* PUT update profile picture */
-router.put('/profile-pic', passport.authenticate('jwt', {'session': false}), utils.uploadMediaFile.single('mfile'), (req, res) => {
+router.put('/update/profile-pic', passport.authenticate('jwt', {'session': false}), utils.uploadMediaFile.single('mfile'), (req, res) => {
   if(settings.image_mime_type.includes(req.file.mimetype)){
     utils.thumbnailGenerator(req.file).then((file) => {
       const picture = {
