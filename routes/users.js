@@ -777,8 +777,8 @@ router.put('/request/:request_id/edit', passport.authenticate('jwt', {'session':
     else{
       // Notificate requesting user that he has been accepted
       if(request.has_access == true){
-        utils.createAndSendNotification(request.requested_by.id, `${request.to.username} accepted your request`,
-          'You now have access to user\'s networking data', `/user/${request.to.id}/profile`)
+        utils.createAndSendNotification(request.requested_by.id, false, req.user.data, `${request.to.username} accepted your request`,
+          'You now have access to user\'s networking data', { 'type': 'requestAccepted', 'userId': request.to.id })
       }
       // Send successfull response
       res.json({ 'success': true })
