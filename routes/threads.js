@@ -524,7 +524,7 @@ router.post('/:thread_id/replies/:reply_id/reply', passport.authenticate('jwt', 
                   'thumbnail': (file == null)? null : file.thumbnail
                 }: null
                 // Push to subreply array
-                reply.update({ '$push': { 'replies': subReply }, '$inc': { 'reply_count': 1 }}, (err) => {
+                reply.update({ '$push': { 'replies': subReply }, '$inc': { 'reply_count': 1 }}, { 'runValidators': true }, (err) => {
                   if(err){
                     res.json({ 'success': false })
                   }
@@ -616,7 +616,7 @@ router.post('/:thread_id/replies/:reply_id/:sub_id/reply', passport.authenticate
                     'thumbnail': (file == null)? null : file.thumbnail
                   }: null
                   // Push to subreply array
-                  reply.update({ '$push': { 'replies': newSubReply }, '$inc': { 'reply_count': 1 }}, (err) => {
+                  reply.update({ '$push': { 'replies': newSubReply }, '$inc': { 'reply_count': 1 }}, { 'runValidators': true }, (err) => {
                     if(err){
                       res.json({ 'success': false })
                     }
