@@ -3,7 +3,8 @@ const shortid = require("shortid");
 const passport = require("passport");
 const router = express.Router();
 
-// Models
+// DB & Models
+const mongoose = require('mongoose')
 const Board = require("../models/board");
 const User = require("../models/user");
 const Thread = require("../models/thread");
@@ -501,6 +502,7 @@ router.post("/:thread_id/replies/:reply_id/reply", passport.authenticate("jwt", 
             }
             // Prepare SubDocument
             let subReply = {
+              "_id": mongoose.Types.ObjectId(),
               "poster": poster,
               "to": {
                 "poster_name": reply.poster.poster_name,
@@ -592,6 +594,7 @@ router.post("/:thread_id/replies/:reply_id/:sub_id/reply", passport.authenticate
               }
               // Prepare SubDocument
               let newSubReply = {
+                "_id": mongoose.Types.ObjectId(),
                 "poster": poster,
                 "to": {
                   "poster_name": subreply.poster.poster_name,
