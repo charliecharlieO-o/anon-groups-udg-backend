@@ -351,7 +351,7 @@ router.post('/:thread_id/replies/since', passport.authenticate('jwt', {'session'
 /* GET replies to a thread based on thread's shortid without subReply field */
 router.get('/:thread_id/replies/nosub', passport.authenticate('jwt', {'session': false}), (req, res) => {
   Reply.find({ 'thread': req.params.thread_id, 'removed': false }, { 'replies': 0 }, (err, replies) => {
-    if(err || !replies){
+    if(err){
       res.json({ 'success': false })
     }
     else{
