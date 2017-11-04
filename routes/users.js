@@ -505,7 +505,7 @@ router.put('/password', passport.authenticate('jwt', {'session': false}), (req, 
     if (!user || err) {
       res.status(404).send('no such user')
     }
-    req.user.data.comparePassword(req.body.password, (err, isMatch) => {
+    user.comparePassword(req.body.password, (err, isMatch) => {
       if(isMatch && !err){
         User.findOneAndUpdate({ '_id': req.user.data._id },
         {
