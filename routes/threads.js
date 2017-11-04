@@ -324,7 +324,7 @@ router.post('/search', passport.authenticate('jwt', {'session': false}), (req, r
 
 /* GET replies to a thread based on thread's id with subReply field */
 router.get('/:thread_id/replies', passport.authenticate('jwt', {'session': false}), (req, res) => {
-  Reply.find({ 'thread': req.params.thread_id }, (err, replies) => {
+  Reply.find({ 'thread': req.params.thread_id, 'removed': false }, (err, replies) => {
     if(err || !replies){
       res.json({ 'success': false })
     }
@@ -334,9 +334,23 @@ router.get('/:thread_id/replies', passport.authenticate('jwt', {'session': false
   })
 })
 
+/* POST get replies after timestam */
+router.post('/:thread_id/replies/since', passport.authenticate('jwt', {'session': false}), (req, res) => {
+  const date = new Date(req.body.date)
+  Reply.find({ 'thread': req.params.thread_id, 'removed': false, 'created_at': { '$gt': req.body.date }}).sort(
+    { 'created_at': -1 }
+  ).exec((err, notifications) => {
+    if(err || !notifications){
+      res.json({ 'success': false })
+    } else{
+      res.json({ 'success': true, 'doc': notifications })
+    }
+  })
+})
+
 /* GET replies to a thread based on thread's shortid without subReply field */
 router.get('/:thread_id/replies/nosub', passport.authenticate('jwt', {'session': false}), (req, res) => {
-  Reply.find({ 'thread': req.params.thread_id }, { 'replies': 0 }, (err, replies) => {
+  Reply.find({ 'thread': req.params.thread_id, 'removed': false }, { 'replies': 0 }, (err, replies) => {
     if(err || !replies){
       res.json({ 'success': false })
     }
@@ -348,7 +362,7 @@ router.get('/:thread_id/replies/nosub', passport.authenticate('jwt', {'session':
 
 /* GET replies to a thread with limited subReplies on sight */
 router.get('/:thread_id/replies/limit-sub', passport.authenticate('jwt', {'session': false}), (req, res) => {
-  Reply.find({ 'thread': req.params.thread_id }, { 'replies': { '$slice': [0,2] }}, (err, replies) => {
+  Reply.find({ 'thread': req.params.thread_id, 'removed': false }, { 'replies': { '$slice': [0,2] }}, (err, replies) => {
     if(err || !replies){
       res.json({ 'success': false })
     }
@@ -360,7 +374,7 @@ router.get('/:thread_id/replies/limit-sub', passport.authenticate('jwt', {'sessi
 
 /* GET reply without subreplies based on id */
 router.get('/replies/:reply_id/nosub', (req, res) => {
-  Reply.findOne({ '_id': req.params.reply_id }, { replies: 0 }, (err, reply) => {
+  Reply.findOne({ '_id': req.params.reply_id, 'removed': false }, { replies: 0 }, (err, reply) => {
     if(err || !reply){
       res.json({ 'success': false })
     }
@@ -372,7 +386,7 @@ router.get('/replies/:reply_id/nosub', (req, res) => {
 
 /* GET reply with subreplies based on id */
 router.get('/replies/:reply_id', (req, res) => {
-  Reply.findOne({ '_id': req.params.reply_id }, (err, reply) => {
+  Reply.findOne({ '_id': req.params.reply_id, 'removed': false }, (err, reply) => {
     if(err || !reply){
       res.json({ 'success': false })
     }
