@@ -358,34 +358,37 @@ router.put('/update/networks', passport.authenticate('jwt', {'session': false}),
 })
 
 /* POST reset password (send token) PENDING */
-router.post('/reset-pwd/token', passport.authenticate('jwt', {'session': false}), (req, res) => {
+router.post('/forgot-pwd', passport.authenticate('jwt', {'session': false}), (req, res) => {
   // Create token for recovery and save it to user model
   // Respond with success
   // Send email with token
   res.json({'success': false})
 })
 
-/* PUT reset password PENDING */
-router.put('/reset-pwd', (req, res) => {
-  // Receive token in body compare to one in user model and reset password
-  res.json({'success': true})
-})
-
-/* POST change email (send email to old one to change it) PENDING */
-router.post('/reset-email/token', passport.authenticate('jwt', {'session': false}), (req, res) => {
-  // Create change token and save it in user's account
-  // send email to old email to authorize a change
-  res.json({'success' : true})
-})
-
 /* PUT change email */
 router.put('/reset-email', passport.authenticate('jwt', {'session': false}), (req, res) => {
-  // Check if change token is in user's account, if it is then update
-  User.findByIdAndUpdate(req.user.data._id, {'$set': {'email': req.body.email}}, {'new':true}, (err, user) => {
-    if (err || !user) {
-      res.json({'success': false})
-    } else {
-      res.json({'success': true})
+  req.user.data.comparePassword(req.body.password, (err, isMatch) => {
+    if(isMatch && !err){
+      // User save last log
+      user.last_log = Date.now()
+      user.save((err) => {
+        if(err){
+          res.status(403).send({ 'error': 'unauthorized' })
+        }
+        else{
+          // If its the correct password, update email
+          User.findByIdAndUpdate(req.user.data._id, { '$set': { 'email': req.body.email }}, (err, user) => {
+            if (err || !user) {
+              res.status(500).send('error')
+            } else {
+              res.json({ 'success': true })
+            }
+          })
+        }
+      })
+    }
+    else{
+      res.json({ 'success': false })
     }
   })
 })
@@ -503,15 +506,31 @@ router.put('/unban', passport.authenticate('jwt', {'session': false}), (req, res
 
 /* PUT change user's password */
 router.put('/password', passport.authenticate('jwt', {'session': false}), (req, res) => {
-  User.findOneAndUpdate({ '_id': req.user.data._id },
-  {
-    '$set':{ 'password': req.body.new_password }
-  }, (err, user) => {
-    if(err || !user){
-      res.json({ 'success': false })
+  req.user.data.comparePassword(req.body.password, (err, isMatch) => {
+    if(isMatch && !err){
+      // User save last log
+      user.last_log = Date.now()
+      user.save((err) => {
+        if(err){
+          res.status(403).send({ 'error': 'unauthorized' })
+        }
+        else{
+          User.findOneAndUpdate({ '_id': req.user.data._id },
+          {
+            '$set':{ 'password': req.body.new_password }
+          }, (err, user) => {
+            if(err || !user){
+              res.json({ 'success': false })
+            }
+            else{
+              res.json({ 'success': true })
+            }
+          })
+        }
+      })
     }
     else{
-      res.json({ 'success': true })
+      res.json({ 'success': false })
     }
   })
 })
@@ -808,6 +827,22 @@ router.delete('/request/:request_id/remove', passport.authenticate('jwt', {'sess
 //=================================================================================
 
 const default_notification_list = '_id title description reference_url seen'
+
+/* POST list notifications past X date */
+router.post('/notifications/from', passport.authenticate('jwt', {'session': false}), (req, res) => {
+  const date = new Date(req.body.date)
+  Notification.find({ 'owner': req.user.data._id, 'seen': false, 'date_alerted': { '$gt': req.body.date }}).select(
+    default_notification_list
+  ).sort(
+    { 'date_alerted': -1 }
+  ).exec((err, notifications) => {
+    if(err || !notifications){
+      res.json({ 'success': false })
+    } else{
+      res.json({ 'success': true, 'doc': notifications })
+    }
+  })
+})
 
 /* PUT set a notification as seen */
 router.put('/notification/:notif_id/set-seen', passport.authenticate('jwt', {'session': false}), (req, res) => {
