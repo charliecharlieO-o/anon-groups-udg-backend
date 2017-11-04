@@ -502,16 +502,14 @@ router.put('/unban', passport.authenticate('jwt', {'session': false}), (req, res
 /* PUT change user's password */
 router.put('/password', passport.authenticate('jwt', {'session': false}), (req, res) => {
   User.findById(req.user.data._id, (err, user) => {
-    if (!user || err) {
-      res.status(404).send('no such user')
+    if (!user || err || !req.body.new_password) {
+      res.status(404).send('val errors')
     }
     user.comparePassword(req.body.password, (err, isMatch) => {
       if(isMatch && !err){
-        User.findOneAndUpdate({ '_id': req.user.data._id },
-        {
-          '$set':{ 'password': req.body.new_password }
-        }, (err, user) => {
-          if(err || !user){
+        user.password = req.body.new_password
+        user.save((err) => {
+          if(err){
             res.status(500).send('error')
           } else{
             res.json({ 'success': true })
