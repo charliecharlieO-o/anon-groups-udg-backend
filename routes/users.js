@@ -566,7 +566,7 @@ router.post('/promote', passport.authenticate('jwt', {'session': false}), (req, 
 
 // List items to show
 const default_request_list = 'to requested_by date_requested'
-const personal_request_list = 'to requested_by date_requested has_access'
+const personal_request_list = 'to requested_by date_requested has_access responded'
 
 /* GET specific info request */
 router.get('/request/:request_id', passport.authenticate('jwt', {'session': false}), (req, res) => {
