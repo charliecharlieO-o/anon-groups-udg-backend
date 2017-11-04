@@ -566,6 +566,7 @@ router.post('/promote', passport.authenticate('jwt', {'session': false}), (req, 
 
 // List items to show
 const default_request_list = 'to requested_by date_requested'
+const personal_request_list = 'to requested_by date_requested has_access'
 
 /* GET specific info request */
 router.get('/request/:request_id', passport.authenticate('jwt', {'session': false}), (req, res) => {
@@ -705,7 +706,7 @@ router.post('/requests/deny-all', passport.authenticate('jwt', {'session': false
 /* GET list of users with granted access */
 router.get('/friends', passport.authenticate('jwt', {'session': false}), (req, res) => {
   Request.find({ 'actors': req.user.data._id, 'has_access': true }).select(
-    default_request_list
+    personal_request_list
   ).sort(
     { 'date_requested': -1 }
   ).exec((err, requests) => {
@@ -721,7 +722,7 @@ router.get('/friends', passport.authenticate('jwt', {'session': false}), (req, r
 /* GET list of users which access has been denied */
 router.get('/foes', passport.authenticate('jwt', {'session': false}), (req, res) => {
   Request.find({ 'to.id': req.user.data._id, 'responded': true ,'has_access': false }).select(
-    default_request_list
+    personal_request_list
   ).sort(
     { 'date_requested': -1 }
   ).exec((err, requests) => {
