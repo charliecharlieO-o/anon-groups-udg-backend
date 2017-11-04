@@ -339,11 +339,11 @@ router.post('/:thread_id/replies/since', passport.authenticate('jwt', {'session'
   const date = new Date(req.body.date)
   Reply.find({ 'thread': req.params.thread_id, 'removed': false, 'created_at': { '$gt': req.body.date }}).sort(
     { 'created_at': -1 }
-  ).exec((err, notifications) => {
-    if(err || !notifications){
+  ).exec((err, replies) => {
+    if(err){
       res.json({ 'success': false })
     } else{
-      res.json({ 'success': true, 'doc': notifications })
+      res.json({ 'success': true, 'doc': replies })
     }
   })
 })
@@ -351,7 +351,7 @@ router.post('/:thread_id/replies/since', passport.authenticate('jwt', {'session'
 /* GET replies to a thread based on thread's shortid without subReply field */
 router.get('/:thread_id/replies/nosub', passport.authenticate('jwt', {'session': false}), (req, res) => {
   Reply.find({ 'thread': req.params.thread_id, 'removed': false }, { 'replies': 0 }, (err, replies) => {
-    if(err){
+    if(err || !replies){
       res.json({ 'success': false })
     }
     else{
