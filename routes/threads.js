@@ -337,9 +337,11 @@ router.get('/:thread_id/replies', passport.authenticate('jwt', {'session': false
 /* POST get replies after timestam */
 router.post('/:thread_id/replies/since', passport.authenticate('jwt', {'session': false}), (req, res) => {
   const date = new Date(req.body.date)
-  Reply.find({ 'thread': req.params.thread_id, 'removed': false, 'created_at': { '$gt': req.body.date }}).sort(
-    { 'created_at': -1 }
-  ).exec((err, replies) => {
+  Reply.find({
+    'thread': req.params.thread_id,
+    'removed': false,
+    'created_at': { '$gt': req.body.date }
+  }).exec((err, replies) => {
     if(err){
       res.json({ 'success': false })
     } else{
