@@ -438,23 +438,24 @@ router.post('/:thread_id/reply', passport.authenticate('jwt', {'session': false}
         let newReply = new Reply({
           'thread': thread._id,
           'poster': poster,
-          'media': null,
           'text': req.body.text,
+          'media': null,
           'replies': []
         })
         // Create thumbnail and add file to reply if Uploaded
         utils.thumbnailGenerator(req.file).then((file) => {
           // Add media to reply
-          newReply.media = (file)?
-            {
+          if (req.file) {
+            newReply.media = {
               'name': file.originalname,
               'location': file.path,
               'mimetype': file.mimetype,
               'size': file.size,
               'thumbnail': (file == null)? null : file.thumbnail
-            }: null
+            }
+          }
           // Save Reply
-          newReply.save((err, reply) => {
+          Reply.create(newReply, (err, reply) => {
             if(err){
               res.json({'success': false})
             }
@@ -527,39 +528,40 @@ router.post('/:thread_id/replies/:reply_id/reply', passport.authenticate('jwt', 
                 'poster_thumbnail': reply.poster.poster_thumbnail,
                 'anon': reply.poster.anon
               },
-              'media': null,
-              'text': req.body.text
+              'text': req.body.text,
+              'media': null
             }
             utils.thumbnailGenerator(req.file).then((file) => {
               // Add media to reply
-              subReply.media = (file)?
-                {
+              if (req.file) {
+                subReply.media = {
                   'name': file.originalname,
                   'location': file.path,
                   'mimetype': file.mimetype,
                   'size': file.size,
                   'thumbnail': (file == null)? null : file.thumbnail
-                }: null
-                // Push to subreply array
-                reply.update({ '$push': { 'replies': subReply }, '$inc': { 'reply_count': 1 }}, { 'runValidators': true }, (err) => {
-                  if(err){
-                    res.json({ 'success': false })
-                  }
-                  else{
-                    res.json({ 'success': true, 'doc': subReply })
-                    // Notificate OP
-                    const rp = (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username
-                    utils.createAndSendNotification(reply.poster.poster_id, reply.poster.anon, req.user.data, 'New Reply',
-                    `${rp} replied under your comment.`, { 'type': 'reply', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
-                      // Handle error
-                    })
-                    // Send notification to 'TO'
-                    utils.createAndSendNotification(subReply.to.poster_id, subReply.poster.anon, req.user.data, 'New Reply',
-                    `${rp} replied to you.`, { 'type': 'reply', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
-                      // Handle error
-                    })
-                  }
-                })
+                }
+              }
+              // Push to subreply array
+              reply.update({ '$push': { 'replies': subReply }, '$inc': { 'reply_count': 1 }}, { 'runValidators': true }, (err) => {
+                if(err){
+                  res.json({ 'success': false })
+                }
+                else{
+                  res.json({ 'success': true, 'doc': subReply })
+                  // Notificate OP
+                  const rp = (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username
+                  utils.createAndSendNotification(reply.poster.poster_id, reply.poster.anon, req.user.data, 'New Reply',
+                  `${rp} replied under your comment.`, { 'type': 'reply', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
+                    // Handle error
+                  })
+                  // Send notification to 'TO'
+                  utils.createAndSendNotification(subReply.to.poster_id, subReply.poster.anon, req.user.data, 'New Reply',
+                  `${rp} replied to you.`, { 'type': 'reply', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
+                    // Handle error
+                  })
+                }
+              })
             }).catch((err) => {
               // Delete Uploaded File
               if(req.file)
