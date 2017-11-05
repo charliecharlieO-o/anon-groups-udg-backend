@@ -1,5 +1,7 @@
 version: '3'
 services:
-    nodeserver:
-        image: 'node:carbon'
-        command: node -v
+    maskmobserver:
+        build: .
+        ports:
+            - 80:3000
+        command: npm start
