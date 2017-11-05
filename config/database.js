@@ -2,12 +2,15 @@
 const DBHOST = '198.199.79.16'
 
 // USER
-const USER = 'maskmobproductionuser'
-const PASSWORD = '7654321'
+// production: maskmobdevelopuser
+// develop: maskmobdevelopuser
+const USER = 'maskmobdevelopuser'
+const PASSWORD = '123456'
 const AUTH = `${USER}:${PASSWORD}`
 
 // DB prduction name: maskmobproduction
-const DBNAME = 'maskmobproduction'
+// DB develop name: maskmobdevelop
+const DBNAME = 'maskmobdevelop'
 
 // DB production port: 2018
 const PORT = '2018'
