@@ -1,0 +1,5 @@
+version: '3'
+services:
+    nodeserver:
+        image: 'node:carbon'
+        command: node -v
