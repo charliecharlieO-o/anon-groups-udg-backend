@@ -15,7 +15,7 @@ module.exports = {
 	'max_user_search_results': 50,
 	'max_notif_list_results': 300,
 	'max_thread_replies': 500, // Maximum nunmber of replies per thread
-	'max_reply_subreplies': 50, // Maximum number of sub-replies per reply
+	'max_reply_subreplies': 70, // Maximum number of sub-replies per reply
 	'creme_of_the_top_max': 10,
 	'alias_change_rate': 24, // How often can a user change his alias (hours)
 	'max_upload_size': 7340032, // Max file size in bytes

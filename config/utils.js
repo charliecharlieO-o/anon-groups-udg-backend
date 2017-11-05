@@ -172,7 +172,7 @@ const thumbnailGenerator = function(multer_file){
     if(settings.image_mime_type.includes(multer_file.mimetype)){
       // Create image thumbnail
       sharp(multer_file.path)
-        .resize(200, 150)
+        .resize(300, 200)
         .max()
         .toFile(thumbnail_dest, (err) => {
           if(!err){
