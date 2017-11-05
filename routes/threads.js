@@ -375,7 +375,7 @@ router.get('/:thread_id/replies/limit-sub', passport.authenticate('jwt', {'sessi
 })
 
 /* GET reply without subreplies based on id */
-router.get('/replies/:reply_id/nosub', (req, res) => {
+router.get('/replies/:reply_id/nosub', passport.authenticate('jwt', {'session': false}), (req, res) => {
   Reply.findOne({ '_id': req.params.reply_id, 'removed': false }, { replies: 0 }, (err, reply) => {
     if(err || !reply){
       res.json({ 'success': false })
@@ -387,13 +387,24 @@ router.get('/replies/:reply_id/nosub', (req, res) => {
 })
 
 /* GET reply with subreplies based on id */
-router.get('/replies/:reply_id', (req, res) => {
+router.get('/replies/:reply_id', passport.authenticate('jwt', {'session': false}), (req, res) => {
   Reply.findOne({ '_id': req.params.reply_id, 'removed': false }, (err, reply) => {
     if(err || !reply){
       res.json({ 'success': false })
     }
     else{
       res.json({ 'success': true, 'doc': reply })
+    }
+  })
+})
+
+/* GET reply's last updated timestamp */
+router.get('/replies/:reply_id/get-last-update', passport.authenticate('jwt', {'session': false}), (req, res) => {
+  Reply.findOne({ '_id': req.params.reply_id, 'removed': false }, 'updated_at', (err, reply) => {
+    if (err) {
+      res.status(500).send('error')
+    } else {
+      res.json({ 'success': true, 'doc': reply.updated_at })
     }
   })
 })
