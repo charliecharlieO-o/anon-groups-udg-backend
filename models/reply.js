@@ -19,7 +19,7 @@ const subReply = new Schema({
 		thumbnail: { type: String }
 	},
 	removed: { type: Boolean, required: true, default: false },
-	text: { type: String, required: true, maxlength: 500 }
+	text: { type: String, maxlength: 500 }
 }, { timestamps: { 'createdAt': 'created_at', 'updatedAt': 'updated_at' }})
 
 subReply.pre('save', function(next){
@@ -46,7 +46,7 @@ const replySchema = new Schema({
 		thumbnail: { type: String }
 	},
 	removed: { type: Boolean, required: true, default: false },
-	text: { type: String, required: true, maxlength: 800 },
+	text: { type: String, maxlength: 800 },
 	reply_count: { type: Number, required: true, default: 0 },
 	replies: [ subReply ]
 }, { timestamps: { 'createdAt': 'created_at', 'updatedAt': 'updated_at' }})
