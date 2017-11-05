@@ -469,16 +469,6 @@ router.post('/:thread_id/reply', passport.authenticate('jwt', {'session': false}
               })
               // Bump Thread
               thread.bumpThread()
-              // Push reply excerpt to thread for display
-              if(thread.reply_excerpts.length < settings.excerpts_per_thread){
-                thread.reply_excerpts.push({
-                  'reply_id': reply._id,
-                  'poster_name': (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username,
-                  'poster_id': req.user.data._id,
-                  'poster_pic': (req.user.data.alias.handle != null)? null : req.user.data.profile_pic.thumbnail,
-                  'text_excerpt': reply.text.substring(0, settings.excerpts_substring)
-                })
-              }
             }
           })
         }).catch((err) => {

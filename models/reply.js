@@ -25,7 +25,7 @@ const subReply = new Schema({
 subReply.pre('save', function(next){
 	let subr = this
 	if(subr.isNew || subr.isModified('media') || subr.isModified('text')){
-		if(subr.media || (subr.text && subr.text !== '' && subr.text.match(/^\s*$/) == null)){
+		if(!subr.media || (subr.text && subr.text === '' && subr.text.match(/^\s*$/) !== null)){
 			next()
 		} else {
 			next(new Error('Reply must contain at least media or text'))
@@ -54,7 +54,7 @@ const replySchema = new Schema({
 replySchema.pre('save', function(next){
 	let reply = this
 	if(reply.isNew || reply.isModified('media') || reply.isModified('text')){
-		if(reply.media || (reply.text && reply.text !== '' && reply.text.match(/^\s*$/) == null)){
+		if(!reply.media || (reply.text && reply.text === '' && reply.text.match(/^\s*$/) !== null)){
 			next()
 		} else {
 			next(new Error('Reply must contain at least media or text'))
