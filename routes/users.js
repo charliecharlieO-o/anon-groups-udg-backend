@@ -367,29 +367,24 @@ router.post('/forgot-pwd', passport.authenticate('jwt', {'session': false}), (re
 
 /* PUT change email */
 router.put('/reset-email', passport.authenticate('jwt', {'session': false}), (req, res) => {
-  req.user.data.comparePassword(req.body.password, (err, isMatch) => {
-    if(isMatch && !err){
-      // User save last log
-      user.last_log = Date.now()
-      user.save((err) => {
-        if(err){
-          res.status(403).send({ 'error': 'unauthorized' })
-        }
-        else{
-          // If its the correct password, update email
-          User.findByIdAndUpdate(req.user.data._id, { '$set': { 'email': req.body.email }}, (err, user) => {
-            if (err || !user) {
-              res.status(500).send('error')
-            } else {
-              res.json({ 'success': true })
-            }
-          })
-        }
-      })
+  User.findById(req.user.data._id, (err, user) => {
+    if (!user || err) {
+      res.status(404).send('no such user')
     }
-    else{
-      res.json({ 'success': false })
-    }
+    user.comparePassword(req.body.password, (err, isMatch) => {
+      if(isMatch && !err){
+        // If its the correct password, update email
+        User.findByIdAndUpdate(req.user.data._id, { '$set': { 'email': req.body.email }}, (err, user) => {
+          if (err || !user) {
+            res.status(500).send('error')
+          } else {
+            res.json({ 'success': true })
+          }
+        })
+      } else{
+        res.status(403).send({ 'error': 'unauthorized' })
+      }
+    })
   })
 })
 
@@ -506,32 +501,25 @@ router.put('/unban', passport.authenticate('jwt', {'session': false}), (req, res
 
 /* PUT change user's password */
 router.put('/password', passport.authenticate('jwt', {'session': false}), (req, res) => {
-  req.user.data.comparePassword(req.body.password, (err, isMatch) => {
-    if(isMatch && !err){
-      // User save last log
-      user.last_log = Date.now()
-      user.save((err) => {
-        if(err){
-          res.status(403).send({ 'error': 'unauthorized' })
-        }
-        else{
-          User.findOneAndUpdate({ '_id': req.user.data._id },
-          {
-            '$set':{ 'password': req.body.new_password }
-          }, (err, user) => {
-            if(err || !user){
-              res.json({ 'success': false })
-            }
-            else{
-              res.json({ 'success': true })
-            }
-          })
-        }
-      })
+  User.findById(req.user.data._id, (err, user) => {
+    if (!user || err || !req.body.new_password) {
+      res.status(404).send('val errors')
     }
-    else{
-      res.json({ 'success': false })
-    }
+    user.comparePassword(req.body.password, (err, isMatch) => {
+      if(isMatch && !err){
+        user.password = req.body.new_password
+        user.save((err) => {
+          if(err){
+            res.status(500).send('error')
+          } else{
+            res.json({ 'success': true })
+          }
+        })
+      }
+      else{
+        res.status(403).send({ 'error': 'unauthorized' })
+      }
+    })
   })
 })
 
