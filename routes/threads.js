@@ -551,8 +551,8 @@ router.post('/:thread_id/replies/:reply_id/reply', passport.authenticate('jwt', 
                   res.json({ 'success': true, 'doc': subReply })
                   // Notificate OP
                   const rp = (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username
-                  utils.createAndSendNotification(reply.poster.poster_id, reply.poster.anon, req.user.data, 'New Reply',
-                  `${rp} replied under your comment.`, { 'type': 'reply', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
+                  utils.createAndSendNotification(reply.poster.poster_id, reply.poster.anon, req.user.data, 'Reply Under',
+                  `${rp} replied under your comment.`, { 'type': 'replyunder', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
                     // Handle error
                   })
                   // Send notification to 'TO'
@@ -643,8 +643,8 @@ router.post('/:thread_id/replies/:reply_id/:sub_id/reply', passport.authenticate
                       res.json({ 'success': true, 'doc': newSubReply })
                       // Notificate OP
                       const rp = (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username
-                      utils.createAndSendNotification(reply.poster.poster_id, reply.poster.anon, req.user.data, 'New Reply',
-                      `${rp} replied under your comment.`, { 'type': 'subreply', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
+                      utils.createAndSendNotification(reply.poster.poster_id, reply.poster.anon, req.user.data, 'Reply Under',
+                      `${rp} replied under your comment.`, { 'type': 'replyunder', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
                         // Handle error
                       })
                       // Send notification to 'TO'
