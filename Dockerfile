@@ -3,8 +3,8 @@ FROM node:carbon
 WORKDIR /app/
 
 COPY package.json .
+COPY package-lock.json .
 
-RUN apt-get update && apt-get install build-essential
 RUN npm install --quiet
 
 COPY . .
