@@ -19,7 +19,7 @@ module.exports = {
 	'creme_of_the_top_max': 10,
 	'alias_change_rate': 24, // How often can a user change his alias (hours)
 	'max_upload_size': 7340032, // Max file size in bytes
-	'allowed_file_types': ['pdf', 'mp4', 'gif', 'jpeg', 'webm', 'png'],
+	'allowed_file_types': ['mp4', 'gif', 'jpeg', 'webm', 'png'],
 	'image_mime_type': ['image/gif', 'image/jpeg', 'image/png'],
 	'video_mime_type': ['video/webm', 'video/mp4'],
 	// Ude G settings
