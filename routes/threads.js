@@ -119,23 +119,23 @@ router.post('/:board_slug/post', passport.authenticate('jwt', {'session': false}
         })
         // We should validate data here
         // Create thumbnail and add file to thread if Uploaded
-        utils.thumbnailGenerator(req.file).then((file) => {
+        utils.uploadMediaToS3(req.file).then((file) => {
           if(req.file){
             newThread.media = {
               'name': file.originalname,
-              'location': file.path,
+              'location': `${file.tourl}/${file.filename}`,
               'mimetype': file.mimetype,
               'size': file.size,
-              'thumbnail': (file == null)? null : file.thumbnail
+              'thumbnail': (file == null)? null : `${file.tourl}/${file.thumbname}`
             }
           }
           Thread.create(newThread, (err, thread) => {
             if(err || !thread){
-              // Delete Uploaded File & Thumbnail
-              if(req.file)
+              // Delete Uploaded File & Thumbnail (DISK)
+              /* if(req.file)
                 utils.deleteFile(req.file.path)
               if(file)
-                utils.deleteFile(file.thumbnail)
+                utils.deleteFile(file.thumbnail) */
               res.json({ 'success': false })
             }
             else{
@@ -143,9 +143,9 @@ router.post('/:board_slug/post', passport.authenticate('jwt', {'session': false}
             }
           })
         }).catch((err) => {
-          // Delete Uploaded File
-          if(req.file)
-            utils.deleteFile(req.file.path)
+          // Delete Uploaded File (DISK)
+          /* if(req.file)
+            utils.deleteFile(req.file.path) */
           res.json({ 'success': false })
         })
       }
@@ -443,15 +443,15 @@ router.post('/:thread_id/reply', passport.authenticate('jwt', {'session': false}
           'replies': []
         })
         // Create thumbnail and add file to reply if Uploaded
-        utils.thumbnailGenerator(req.file).then((file) => {
+        utils.uploadMediaToS3(req.file).then((file) => {
           // Add media to reply
           if (req.file) {
             newReply.media = {
               'name': file.originalname,
-              'location': file.path,
+              'location': `${file.tourl}/${file.filename}`,
               'mimetype': file.mimetype,
               'size': file.size,
-              'thumbnail': (file == null)? null : file.thumbnail
+              'thumbnail': (file == null)? null : `${file.tourl}/${file.thumbname}`
             }
           }
           // Save Reply
@@ -473,9 +473,9 @@ router.post('/:thread_id/reply', passport.authenticate('jwt', {'session': false}
             }
           })
         }).catch((err) => {
-          // Delete Uploaded File
-          if(req.file)
-            utils.deleteFile(req.file.path)
+          // Delete Uploaded File (DISK)
+          /* if(req.file)
+            utils.deleteFile(req.file.path) */
           res.json({ 'success': false })
         })
       }
@@ -531,15 +531,15 @@ router.post('/:thread_id/replies/:reply_id/reply', passport.authenticate('jwt', 
               'text': req.body.text,
               'media': null
             }
-            utils.thumbnailGenerator(req.file).then((file) => {
+            utils.uploadMediaToS3(req.file).then((file) => {
               // Add media to reply
               if (req.file) {
                 subReply.media = {
                   'name': file.originalname,
-                  'location': file.path,
+                  'location': `${file.tourl}/${file.filename}`,
                   'mimetype': file.mimetype,
                   'size': file.size,
-                  'thumbnail': (file == null)? null : file.thumbnail
+                  'thumbnail': (file == null)? null : `${file.tourl}/${file.thumbname}`
                 }
               }
               // Push to subreply array
@@ -564,8 +564,8 @@ router.post('/:thread_id/replies/:reply_id/reply', passport.authenticate('jwt', 
               })
             }).catch((err) => {
               // Delete Uploaded File
-              if(req.file)
-                utils.deleteFile(req.file.path)
+              /* if(req.file)
+                utils.deleteFile(req.file.path) */
               res.json({ 'success': false })
             })
           }
@@ -624,15 +624,15 @@ router.post('/:thread_id/replies/:reply_id/:sub_id/reply', passport.authenticate
                 'media': null,
                 'text': req.body.text
               }
-              utils.thumbnailGenerator(req.file).then((file) => {
+              utils.uploadMediaToS3(req.file).then((file) => {
                 // Add media to reply
                 newSubReply.media = (file)?
                   {
                     'name': file.originalname,
-                    'location': file.path,
+                    'location': `${file.tourl}/${file.filename}`,
                     'mimetype': file.mimetype,
                     'size': file.size,
-                    'thumbnail': (file == null)? null : file.thumbnail
+                    'thumbnail': (file == null)? null : `${file.tourl}/${file.thumbname}`
                   }: null
                   // Push to subreply array
                   reply.update({ '$push': { 'replies': newSubReply }, '$inc': { 'reply_count': 1 }}, { 'runValidators': true }, (err) => {
@@ -655,9 +655,9 @@ router.post('/:thread_id/replies/:reply_id/:sub_id/reply', passport.authenticate
                     }
                   })
               }).catch((err) => {
-                // Delete Uploaded File
-                if(req.file)
-                  utils.deleteFile(req.file.path)
+                // Delete Uploaded File (DISK)
+                /*if(req.file)
+                  utils.deleteFile(req.file.path)*/
                 res.json({ 'success': false })
               })
             }
