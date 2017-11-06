@@ -814,7 +814,7 @@ router.delete('/request/:request_id/remove', passport.authenticate('jwt', {'sess
 //									--	NOTIFICATIONS --
 //=================================================================================
 
-const default_notification_list = '_id title description reference_url seen'
+const default_notification_list = '_id title description reference_url seen meta'
 
 /* POST list notifications past X date */
 router.post('/notifications/since', passport.authenticate('jwt', {'session': false}), (req, res) => {
