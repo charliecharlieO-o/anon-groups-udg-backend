@@ -5,8 +5,7 @@ WORKDIR /app/
 COPY package.json .
 COPY package-lock.json .
 
-RUN npm install -g node-gyp
-RUN npm install --quiet
+RUN npm i -g node-gyp
+RUN npm i
 
 COPY . .
-
