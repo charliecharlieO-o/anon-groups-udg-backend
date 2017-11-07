@@ -847,7 +847,7 @@ router.put('/notification/:notif_id/set-seen', passport.authenticate('jwt', {'se
     }
     else{
       // Update user's notification account
-      req.user.data.update({ '$inc': {'new_notifications': -1}}).exec()
+      // req.user.data.update({ '$inc': {'new_notifications': -1}}).exec()
       // Send successfull response
       res.json({ 'success': true })
     }
@@ -874,7 +874,7 @@ router.delete('/notifications/empty', passport.authenticate('jwt', {'session': f
     }
     else{
       // Update user's notification account
-      req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
+      // req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
       // Send successfull response
       res.json({ 'success': true })
     }
@@ -909,7 +909,7 @@ router.put('/notifications/set-seen', passport.authenticate('jwt', {'session': f
     }
     else {
       // Update user's notification account
-      req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
+      // req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
       // Send successfull response
       res.json({ 'success': true })
     }
@@ -942,8 +942,8 @@ router.delete('/notification/:notif_id/remove', passport.authenticate('jwt', {'s
     }
     else{
       // Update user's notification count
-      if(notification.seen === true)
-        req.user.data.update({ '$inc': {'new_notifications': -1}}).exec()
+      /* if(notification.seen === true)
+        req.user.data.update({ '$inc': {'new_notifications': -1}}).exec() */
       // Send successfull response
       res.json({ 'success': true })
     }
