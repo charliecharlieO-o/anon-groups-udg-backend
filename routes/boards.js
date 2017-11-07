@@ -31,20 +31,20 @@ router.post('/', passport.authenticate('jwt', {'session': false}), utils.uploadM
 		})
 		// Check if file is image type file
 		if(req.file && settings.image_mime_type.includes(req.file.mimetype)){
-			utils.thumbnailGenerator(req.file).then((file) => {
+			utils.uploadMediaToS3(req.file).then((file) => {
 				newBoard.image = {
 					'name': file.originalname,
-					'location': file.path,
+					'location': `${file.tourl}/${file.filename}`,
 					'mimetype': file.mimetype,
 					'size': file.size,
-					'thumbnail': file.thumbnail
+					'thumbnail': `${file.tourl}/${file.thumbname}`
 				}
 				Board.create(newBoard, (err, board) => {
 					if(err){
 						// Check for validation errors
 						res.json({ 'success': false })
-						utils.deleteFile(req.file.path)
-						utils.deleteFile(newBoard.thumbnail)
+						/* utils.deleteFile(req.file.path)
+						utils.deleteFile(newBoard.thumbnail) */
 					}
 					else{
 						res.json({ 'success': true, 'doc': board })
@@ -52,20 +52,20 @@ router.post('/', passport.authenticate('jwt', {'session': false}), utils.uploadM
 				})
 			}).catch((err) => {
 				res.json({'success': false})
-				if(req.file)
-					utils.deleteFile(req.file.path) // Delete file, this repeats A LOT
+				/* if(req.file)
+					utils.deleteFile(req.file.path) // Delete file, this repeats A LOT */
 			})
 		}
 		else{
 			res.json({'success': false})
-			if(req.file)
-				utils.deleteFile(req.file.path) // A LOT
+			/* if(req.file)
+				utils.deleteFile(req.file.path) // A LOT */
 		}
 	}
 	else{
 		res.status(401).send('Unauthorized')
-		if(req.file)
-			utils.deleteFile(req.file.path) // A LOT!
+		/* if(req.file)
+			utils.deleteFile(req.file.path) // A LOT! */
 	}
 })
 
@@ -102,13 +102,13 @@ router.put('/:board_slug/image', passport.authenticate('jwt', {'session': false}
 	if(utils.hasRequiredPriviledges(req.user.data.priviledges, ['edit_board'])){
 		// Check if file is image type file
 		if(req.file && settings.image_mime_type.includes(req.file.mimetype)){
-			utils.thumbnailGenerator(req.file).then((file) => {
+			utils.uploadMediaToS3(req.file).then((file) => {
 				const image = {
 					'name': file.originalname,
-					'location': file.path,
+					'location': `${file.tourl}/${file.filename}`,
 					'mimetype': file.mimetype,
 					'size': file.size,
-					'thumbnail': file.thumbnail
+					'thumbnail': `${file.tourl}/${file.thumbname}`
 				}
 				Board.findOneAndUpdate({ 'slug': req.params.board_slug },
 				{
@@ -119,8 +119,8 @@ router.put('/:board_slug/image', passport.authenticate('jwt', {'session': false}
 					if(err || !board){
 						res.json({ 'success': false })
 						// PLEASE STOP THE MADNESS! (callback hell)
-						utils.deleteFile(req.file.path)
-						utils.deleteFile(image.thumbnail)
+						/* utils.deleteFile(req.file.path)
+						utils.deleteFile(image.thumbnail) */
 					}
 					else{
 						res.json({ 'success': true })
@@ -128,20 +128,20 @@ router.put('/:board_slug/image', passport.authenticate('jwt', {'session': false}
 				})
 			}).catch((err) => {
 				res.json({'success': false})
-				if(req.file)
-					utils.deleteFile(req.file.path) // Delete file, this repeats A LOT
+				/* if(req.file)
+					utils.deleteFile(req.file.path) // Delete file, this repeats A LOT */
 			})
 		}
 		else{
 			res.json({'success': false})
-			if(req.file)
-				utils.deleteFile(req.file.path) // A LOT
+			/* if(req.file)
+				utils.deleteFile(req.file.path) // A LOT */
 		}
 	}
 	else{
 		res.status(401).send('Unauthorized')
-		if(req.file)
-			utils.deleteFile(req.file.path) // A LOT!
+		/* if(req.file)
+			utils.deleteFile(req.file.path) // A LOT! */
 	}
 })
 

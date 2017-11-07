@@ -15,11 +15,11 @@ module.exports = {
 	'max_user_search_results': 50,
 	'max_notif_list_results': 300,
 	'max_thread_replies': 500, // Maximum nunmber of replies per thread
-	'max_reply_subreplies': 50, // Maximum number of sub-replies per reply
+	'max_reply_subreplies': 70, // Maximum number of sub-replies per reply
 	'creme_of_the_top_max': 10,
 	'alias_change_rate': 24, // How often can a user change his alias (hours)
 	'max_upload_size': 7340032, // Max file size in bytes
-	'allowed_file_types': ['pdf', 'mp4', 'gif', 'jpeg', 'webm', 'png'],
+	'allowed_file_types': ['mp4', 'gif', 'jpeg', 'webm', 'png'],
 	'image_mime_type': ['image/gif', 'image/jpeg', 'image/png'],
 	'video_mime_type': ['video/webm', 'video/mp4'],
 	// Ude G settings

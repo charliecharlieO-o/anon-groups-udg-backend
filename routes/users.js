@@ -275,18 +275,18 @@ router.post('/login/standard', (req, res) => {
 /* PUT update profile picture */
 router.put('/update/profile-pic', passport.authenticate('jwt', {'session': false}), utils.uploadMediaFile.single('mfile'), (req, res) => {
   if(settings.image_mime_type.includes(req.file.mimetype)){
-    utils.thumbnailGenerator(req.file).then((file) => {
+    utils.uploadMediaToS3(req.file).then((file) => {
       const picture = {
-        'thumbnail': file.thumbnail,
-        'location': file.path,
+        'thumbnail': `${file.tourl}/${file.thumbname}`,
+        'location': `${file.tourl}/${file.filename}`,
         'mimetype': file.mimetype,
         'size': file.size
       }
       User.findByIdAndUpdate(req.user.data._id, {'$set': {'profile_pic': picture}}, {'new': true}, (err, user) => {
         if(err || !user){
           res.json({'success': false})
-          utils.deleteFile(req.file.path) // :(
-          utils.deleteFile(file.thumbnail)
+          /* utils.deleteFile(req.file.path) // :(
+          utils.deleteFile(file.thumbnail) */
         }
         else{
           res.json({'success': true})
@@ -295,15 +295,15 @@ router.put('/update/profile-pic', passport.authenticate('jwt', {'session': false
     }).catch((err) => {
       res.json({'success': false})
       // Delete Uploaded File
-      if(req.file)
-        utils.deleteFile(req.file.path) // :(
+      /* if(req.file)
+        utils.deleteFile(req.file.path) // :( */
     })
   }
   else{
     res.json({'success': false})
     // Delete Uploaded File
-    if(req.file)
-      utils.deleteFile(req.file.path) // :(
+    /* if(req.file)
+      utils.deleteFile(req.file.path) // :( */
   }
 })
 
@@ -814,10 +814,10 @@ router.delete('/request/:request_id/remove', passport.authenticate('jwt', {'sess
 //									--	NOTIFICATIONS --
 //=================================================================================
 
-const default_notification_list = '_id title description reference_url seen'
+const default_notification_list = '_id title description reference_url seen meta date_alerted'
 
 /* POST list notifications past X date */
-router.post('/notifications/from', passport.authenticate('jwt', {'session': false}), (req, res) => {
+router.post('/notifications/since', passport.authenticate('jwt', {'session': false}), (req, res) => {
   const date = new Date(req.body.date)
   Notification.find({ 'owner': req.user.data._id, 'seen': false, 'date_alerted': { '$gt': req.body.date }}).select(
     default_notification_list
