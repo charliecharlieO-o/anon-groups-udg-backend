@@ -391,7 +391,7 @@ router.put('/reset-email', passport.authenticate('jwt', {'session': false}), (re
 /* PUT change user alias */
 router.put('/alias', passport.authenticate('jwt', {'session': false}), (req, res) => {
   const hours = Math.abs(req.user.data.alias.changed - new Date())/36e5
-  if(req.user.data.alias.handle === null || hours >= settings.alias_change_rate){
+  if(!req.user.data.alias.handle || hours >= settings.alias_change_rate){
     // Determine new alias string
     const aliasHandle = (!req.body.alias || req.body.alias === '' || req.body.alias.match(/^\s*$/) !== null)?
       null : req.body.alias
@@ -638,7 +638,7 @@ router.post('/request', passport.authenticate('jwt', {'session': false}),(req, r
                 else{
                   // Notify user
                   utils.createAndSendNotification(request.to.id, false, req.user.data, `New Networking Request`,
-                  `${req.user.data.username} sent you a request`, { 'type': 'request', 'friendId': req.user.data.id }).catch((err) => {
+                  `${req.user.data.username} sent you a request`, { 'type': 'request', 'friendId': req.user.data._id }).catch((err) => {
                     // Handle error
                   })
                   // Increment request count
@@ -786,7 +786,7 @@ router.put('/request/:request_id/edit', passport.authenticate('jwt', {'session':
       // Notificate requesting user that he has been accepted
       if(request.has_access == true){
         utils.createAndSendNotification(request.requested_by.id, false, req.user.data, `${request.to.username} accepted your request`,
-          'You now have access to user\'s networking data', { 'type': 'requestAccepted', 'userId': request.to.id })
+          'You now have access to user\'s networking data', { 'type': 'requestAccepted', 'friendId': request.to.id })
       }
       // Send successfull response
       res.json({ 'success': true })

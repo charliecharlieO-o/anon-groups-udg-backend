@@ -409,7 +409,7 @@ router.get('/replies/:reply_id/get-last-update', passport.authenticate('jwt', {'
   })
 })
 
-/* POST a new reply to a thread based on shortid */ //(GENERATES NOTIFICATION)
+/* POST a new comment to a thread based on shortid */ //(GENERATES NOTIFICATION)
 router.post('/:thread_id/reply', passport.authenticate('jwt', {'session': false}), utils.uploadMediaFile.single('mfile'), (req, res) => {
   if(utils.hasRequiredPriviledges(req.user.data.priviledges, ['can_reply'])){
     Thread.findOne({ '_id': req.params.thread_id, 'alive': true, 'reply_count': { '$lt':settings.max_thread_replies }}, (err, thread) => {
@@ -486,7 +486,7 @@ router.post('/:thread_id/reply', passport.authenticate('jwt', {'session': false}
   }
 })
 
-/* POST a SubReply to a Reply */ //(GENERATES NOTIFICATION)
+/* POST a Reply to a Comment */ //(GENERATES NOTIFICATION)
 router.post('/:thread_id/replies/:reply_id/reply', passport.authenticate('jwt', {'session': false}),
   utils.uploadMediaFile.single('mfile'), (req, res) => {
   if(utils.hasRequiredPriviledges(req.user.data.priviledges, ['can_reply'])){
@@ -549,12 +549,14 @@ router.post('/:thread_id/replies/:reply_id/reply', passport.authenticate('jwt', 
                 }
                 else{
                   res.json({ 'success': true, 'doc': subReply })
-                  // Notificate OP
+                  // Notificate OP (if 'to' isn't OP)
                   const rp = (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username
-                  utils.createAndSendNotification(reply.poster.poster_id, reply.poster.anon, req.user.data, 'Reply Under',
-                  `${rp} replied under your comment.`, { 'type': 'replyunder', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
-                    // Handle error
-                  })
+                  if (reply.poster.poster_id !== subReply.to.poster_id) {
+                    utils.createAndSendNotification(reply.poster.poster_id, reply.poster.anon, req.user.data, 'Reply Under',
+                    `${rp} replied under your comment.`, { 'type': 'replyunder', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
+                      // Handle error
+                    })
+                  }
                   // Send notification to 'TO'
                   utils.createAndSendNotification(subReply.to.poster_id, subReply.poster.anon, req.user.data, 'New Reply',
                   `${rp} replied to you.`, { 'type': 'reply', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
@@ -578,7 +580,7 @@ router.post('/:thread_id/replies/:reply_id/reply', passport.authenticate('jwt', 
   }
 })
 
-/* POST a SubReply to a SubReply */
+/* POST a Reply to a Reply */
 router.post('/:thread_id/replies/:reply_id/:sub_id/reply', passport.authenticate('jwt', {'session': false}),
   utils.uploadMediaFile.single('mfile'), (req, res) => {
     if(utils.hasRequiredPriviledges(req.user.data.priviledges, ['can_reply'])){ // Check priviledges
@@ -641,12 +643,14 @@ router.post('/:thread_id/replies/:reply_id/:sub_id/reply', passport.authenticate
                     }
                     else{
                       res.json({ 'success': true, 'doc': newSubReply })
-                      // Notificate OP
+                      // Notificate OP (if 'to' isn't OP)
                       const rp = (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username
-                      utils.createAndSendNotification(reply.poster.poster_id, reply.poster.anon, req.user.data, 'Reply Under',
-                      `${rp} replied under your comment.`, { 'type': 'replyunder', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
-                        // Handle error
-                      })
+                      if (reply.poster.poster_id !== newSubReply.to.poster_id) {
+                        utils.createAndSendNotification(reply.poster.poster_id, reply.poster.anon, req.user.data, 'Reply Under',
+                        `${rp} replied under your comment.`, { 'type': 'replyunder', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
+                          // Handle error
+                        })
+                      }
                       // Send notification to 'TO'
                       utils.createAndSendNotification(newSubReply.to.poster_id, newSubReply.to.anon, req.user.data, 'New Reply',
                       `${rp} replied to you.`, { 'type': 'subreply', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
