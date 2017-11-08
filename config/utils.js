@@ -118,7 +118,7 @@ const createAndSendNotification = async (ownerId, isAnon, sender, title, descrip
     const query = (isAnon === true) ? { 'alias.anonId': ownerId } : { '_id': ownerId }
     const user = await User.findOne(query).exec()
     // Check if triggering user exists and isn't recipient user
-    const isSameId = user._id.equals(sender._id
+    const isSameId = user._id.equals(sender._id)
     const isSameAnon = (user.alias.anonId && sender.alias) ? user.alias.anonId.equals(sender.alias.anonId)  : false
     if (user && !isSameId && !isSameAnon) {
       // Create the notification in the database and up user notification count
