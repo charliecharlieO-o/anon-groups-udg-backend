@@ -558,7 +558,7 @@ router.post('/:thread_id/replies/:reply_id/reply', passport.authenticate('jwt', 
                     })
                   }
                   // Send notification to 'TO'
-                  utils.createAndSendNotification(subReply.to.poster_id, subReply.poster.anon, req.user.data, 'New Reply',
+                  utils.createAndSendNotification(subReply.to.poster_id, subReply.to.anon, req.user.data, 'New Reply',
                   `${rp} replied to you.`, { 'type': 'reply', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
                     // Handle error
                   })
