@@ -23,7 +23,7 @@ module.exports = {
 	'image_mime_type': ['image/gif', 'image/jpeg', 'image/png'],
 	'video_mime_type': ['video/webm', 'video/mp4'],
 	// Ude G settings
-	'college_centers': [ 'CUAAD', 'CUCBA', 'CUCEA', 'CUCEI', 'CUCS', 'CUCSH',  'CUALTOS',
-		'CUCIENAGA', 'CUCOSTA', 'CUCSUR', 'CULAGOS', 'CUNORTE', 'CUSUR', 'CUTONALA', 'CUVALLES'
+	'college_centers': [ 'CUAAD', 'CUCBA', 'CUCEA', 'CUCEI', 'CUCS', 'CUCSH',  'CUALT',
+		'CUCIE', 'CUCOS', 'CUCSU', 'CULAG', 'CUNOR', 'CUSUR', 'CUTON', 'CUVAL'
 	]
 };
