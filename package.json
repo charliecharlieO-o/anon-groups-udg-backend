@@ -11,6 +11,7 @@
     "crc32 is used for NIP hashing"
   ],
   "dependencies": {
+    "aws-sdk": "^2.145.0",
     "axios": "^0.16.2",
     "bcrypt": "^1.0.2",
     "bluebird": "^3.5.0",

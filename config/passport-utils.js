@@ -1,6 +1,6 @@
 const jwt = require("jwt-simple");
 
-const expiration = 172800; // expiration 48 hrs in seconds
+const expiration = 86400; // expiration 24 hrs in seconds
 
 function createToken(user, secret){
 	const token = jwt.encode({

@@ -29,7 +29,7 @@ const userSchema = new Schema({
 	username: { type: String, minlength:1, required: true, unique: true,
 							index: true, validate: userNameValidator },
 	password: { type: String, required: true },
-	nipCode: { type: Number, required: false, unique: true, index: true }, // SIIAU NIP HASH
+	nipCode: { type: Number, required: false, unique: true, index: true, sparse: true }, // SIIAU NIP HASH (unique but not required)
 	alias: { // This field will enforce user anonimity throughout the site
 		anonId: { type: Schema.ObjectId, index: true, default: null }, //yass
 		handle: { type: String, minlength: 1, default: null, validate: aliasValidator },
@@ -48,7 +48,7 @@ const userSchema = new Schema({
 	priviledges: [ { type: String, required: true, enum: settings.priviledges } ],
 	contact_info: [ userContactInfo ],
 	email: { type: String, required: true, unique: true, index: true, validate: emailValidator },
-	new_notifications: { type: Number, required: true, default: 0 },
+	// new_notifications: { type: Number, required: true, default: 0 },
 	new_requests: { type: Number, required: true, default: 0 },
 	last_log: { type: Date, required: true, default: null },
 	is_super: { type: Boolean, required: true, default: false },

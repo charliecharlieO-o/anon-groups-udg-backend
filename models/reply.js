@@ -11,57 +11,57 @@ const posterSchema = new Schema({
 const subReply = new Schema({
 	poster: posterSchema,
 	to: posterSchema,
-	media: {
+	media: { type: {
 		name: { type: String },
 		location: { type: String },
 		mimetype: { type: String },
 		size: { type: Number },
 		thumbnail: { type: String }
-	},
+	}, default: null },
 	removed: { type: Boolean, required: true, default: false },
-	text: { type: String, required: true, maxlength: 500 }
+	text: { type: String, maxlength: 500 }
 }, { timestamps: { 'createdAt': 'created_at', 'updatedAt': 'updated_at' }})
 
-subReply.pre('save', function(next){
+subReply.pre('validate', function(next){
 	let subr = this
-	if(subr.isNew || subr.isModified('media') || subr.isModified('text')){
-		if(subr.media || (subr.text && subr.text !== '' && subr.text.match(/^\s*$/) == null)){
-			next()
-		} else {
-			next(new Error('Reply must contain at least media or text'))
+	// Check if post contains image or text
+	if(subr.isNew || subr.isModified('text') || subr.isModified('media')){
+		// Check if post contains image or text
+		if(!subr.media && (!subr.text || subr.text === '' || subr.text.match(/^\s*$/) !== null)){
+			next(new Error('subr must contain at least media or text'))
 		}
-	} else {
-		next()
 	}
+	// Everything is OK
+	next()
 })
 
 const replySchema = new Schema({
 	thread: { type: Schema.ObjectId, required: true, index: true },
 	poster: posterSchema,
-	media: {
+	media: { type: {
 		name: { type: String },
 		location: { type: String },
 		mimetype: { type: String },
 		size: { type: Number },
 		thumbnail: { type: String }
-	},
+	}, default: null },
 	removed: { type: Boolean, required: true, default: false },
-	text: { type: String, required: true, maxlength: 800 },
+	text: { type: String, maxlength: 800 },
 	reply_count: { type: Number, required: true, default: 0 },
 	replies: [ subReply ]
 }, { timestamps: { 'createdAt': 'created_at', 'updatedAt': 'updated_at' }})
 
 replySchema.pre('save', function(next){
 	let reply = this
-	if(reply.isNew || reply.isModified('media') || reply.isModified('text')){
-		if(reply.media || (reply.text && reply.text !== '' && reply.text.match(/^\s*$/) == null)){
-			next()
-		} else {
-			next(new Error('Reply must contain at least media or text'))
+	// Check if post contains image or text
+	if(reply.isNew || reply.isModified('text') || reply.isModified('media')){
+		// Check if post contains image or text
+		if(!reply.media && (!reply.text || reply.text === '' || reply.text.match(/^\s*$/) !== null)){
+			next(new Error('reply must contain at least media or text'))
 		}
-	} else {
-		next()
 	}
+	// Everything is OK
+	next()
 })
 
 module.exports = mongoose.model('Reply', replySchema)
