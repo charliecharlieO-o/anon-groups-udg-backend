@@ -48,7 +48,7 @@ const userSchema = new Schema({
 	priviledges: [ { type: String, required: true, enum: settings.priviledges } ],
 	contact_info: [ userContactInfo ],
 	email: { type: String, required: true, unique: true, index: true, validate: emailValidator },
-	// new_notifications: { type: Number, required: true, default: 0 },
+	new_notifications: { type: Number, required: true, default: 0 },
 	new_requests: { type: Number, required: true, default: 0 },
 	last_log: { type: Date, required: true, default: null },
 	is_super: { type: Boolean, required: true, default: false },

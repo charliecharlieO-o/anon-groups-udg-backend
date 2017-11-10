@@ -25,5 +25,8 @@ module.exports = {
 	// Ude G settings
 	'college_centers': [ 'CUAAD', 'CUCBA', 'CUCEA', 'CUCEI', 'CUCS', 'CUCSH',  'CUALT',
 		'CUCIE', 'CUCOS', 'CUCSU', 'CULAG', 'CUNOR', 'CUSUR', 'CUTON', 'CUVAL'
-	]
+	],
+	// Email notification settings
+	'max_gone_hours': 6,
+	'notification_threshold': 10
 };

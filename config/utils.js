@@ -18,6 +18,9 @@ const settings = require('./settings')
 const { promisify } = require('util')
 const pseudoRandomBytes = promisify(crypto.pseudoRandomBytes);
 
+// For sending emails
+const mailer = require('./nodemailer.js')
+
 //=================================================================================
 //									--	ALGORITHMS & FUNCTIONS --
 //=================================================================================
@@ -129,6 +132,27 @@ const createAndSendNotification = async (ownerId, isAnon, sender, title, descrip
         'meta': metainfo
       })
       const savedNotif = await Notification.create(notification)
+      console.log('SAVED NOTIF')
+      // Send email if user has been disconnected for X amount of time
+      const hours = Math.abs(user.last_log - new Date())/36e5
+      // Check user's notifs are greater than threshold
+      console.log(`hrs${hours}`)
+      if (user.new_notifications >= settings.threshold || hours <= settings.max_gone_hours) {
+        console.log('sending mail')
+        // Send mail
+        mailer.sendMail({
+          from: '"Fred Foo 👻" <foo@blurdybloop.com>', // sender address
+          to: 'bar@blurdybloop.com, baz@blurdybloop.com', // list of receivers
+          subject: 'Hello ✔', // Subject line
+          text: 'Hello world?', // plain text body
+          html: '<b>Hello world?</b>' // html body
+        }).catch((err)=>{}) // should log error
+        // Reset notif counter
+        user.update({ '$set': {'new_notifications': 0}}).exec()
+      } else {
+        // increment usr notifs
+        user.update({ '$inc': {'new_notifications': 1}}).exec()
+      }
       return Promise.resolve(savedNotif)
     } else {
       return Promise.resolve(null)

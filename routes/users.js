@@ -847,7 +847,7 @@ router.put('/notification/:notif_id/set-seen', passport.authenticate('jwt', {'se
     }
     else{
       // Update user's notification account
-      // req.user.data.update({ '$inc': {'new_notifications': -1}}).exec()
+      req.user.data.update({ '$inc': {'new_notifications': -1}}).exec()
       // Send successfull response
       res.json({ 'success': true })
     }
