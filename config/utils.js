@@ -146,7 +146,7 @@ const createAndSendNotification = async (ownerId, isAnon, sender, title, descrip
           subject: 'Hello ✔', // Subject line
           text: 'Hello world?', // plain text body
           html: '<b>Hello world?</b>' // html body
-        }).catch((err)=>{}) // should log error
+        }).catch((err)=>{console.log(err)}) // should catch error
         // Reset notif counter
         user.update({ '$set': {'new_notifications': 0}}).exec()
       } else {
