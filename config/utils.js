@@ -132,17 +132,15 @@ const createAndSendNotification = async (ownerId, isAnon, sender, title, descrip
         'meta': metainfo
       })
       const savedNotif = await Notification.create(notification)
-      console.log('SAVED NOTIF')
       // Send email if user has been disconnected for X amount of time
       const hours = Math.abs(user.last_log - new Date())/36e5
       // Check user's notifs are greater than threshold
-      console.log(`hrs${hours}`)
-      if (user.new_notifications >= settings.threshold || hours <= settings.max_gone_hours) {
+      if (user.new_notifications >= settings.threshold || hours >= settings.max_gone_hours) {
         console.log('sending mail')
         // Send mail
         mailer.sendMail({
-          from: '"Fred Foo 👻" <foo@blurdybloop.com>', // sender address
-          to: 'bar@blurdybloop.com, baz@blurdybloop.com', // list of receivers
+          from: '"Fred Foo 👻" <kyzpujmyyy36js4c@ethereal.email>', // sender address
+          to: user.email, // list of receivers
           subject: 'Hello ✔', // Subject line
           text: 'Hello world?', // plain text body
           html: '<b>Hello world?</b>' // html body
