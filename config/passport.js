@@ -21,6 +21,10 @@ module.exports = (passport) => {
 		// if token doesnt exist in Redis "Unauthorized"
 		// if user is banned then "Unauthorized"
 		// store active tokens in user to give the user the ability to logout from devices
+		const hours = Math.abs(jwt_payload.sess_exp - new Date())/36e5
+		if (hours > 24) {
+			done(null, false)
+		}
 		User.findOne({"_id": jwt_payload.iss}, user_defaults, (err, user) => {
 			if(err){
 				return done(err, false);
@@ -31,8 +35,7 @@ module.exports = (passport) => {
 					"new_token": utils.createToken(user, config.secret)
 				};
 				done(null, credentials);
-			}
-			else{
+			} else {
 				done(null, false);
 			}
 		});

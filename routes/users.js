@@ -275,18 +275,18 @@ router.post('/login/standard', (req, res) => {
 /* PUT update profile picture */
 router.put('/update/profile-pic', passport.authenticate('jwt', {'session': false}), utils.uploadMediaFile.single('mfile'), (req, res) => {
   if(settings.image_mime_type.includes(req.file.mimetype)){
-    utils.thumbnailGenerator(req.file).then((file) => {
+    utils.uploadMediaToS3(req.file).then((file) => {
       const picture = {
-        'thumbnail': file.thumbnail,
-        'location': file.path,
+        'thumbnail': `${file.tourl}/${file.thumbname}`,
+        'location': `${file.tourl}/${file.filename}`,
         'mimetype': file.mimetype,
         'size': file.size
       }
       User.findByIdAndUpdate(req.user.data._id, {'$set': {'profile_pic': picture}}, {'new': true}, (err, user) => {
         if(err || !user){
           res.json({'success': false})
-          utils.deleteFile(req.file.path) // :(
-          utils.deleteFile(file.thumbnail)
+          /* utils.deleteFile(req.file.path) // :(
+          utils.deleteFile(file.thumbnail) */
         }
         else{
           res.json({'success': true})
@@ -295,15 +295,15 @@ router.put('/update/profile-pic', passport.authenticate('jwt', {'session': false
     }).catch((err) => {
       res.json({'success': false})
       // Delete Uploaded File
-      if(req.file)
-        utils.deleteFile(req.file.path) // :(
+      /* if(req.file)
+        utils.deleteFile(req.file.path) // :( */
     })
   }
   else{
     res.json({'success': false})
     // Delete Uploaded File
-    if(req.file)
-      utils.deleteFile(req.file.path) // :(
+    /* if(req.file)
+      utils.deleteFile(req.file.path) // :( */
   }
 })
 
@@ -391,7 +391,7 @@ router.put('/reset-email', passport.authenticate('jwt', {'session': false}), (re
 /* PUT change user alias */
 router.put('/alias', passport.authenticate('jwt', {'session': false}), (req, res) => {
   const hours = Math.abs(req.user.data.alias.changed - new Date())/36e5
-  if(req.user.data.alias.handle === null || hours >= settings.alias_change_rate){
+  if(!req.user.data.alias.handle || hours >= settings.alias_change_rate){
     // Determine new alias string
     const aliasHandle = (!req.body.alias || req.body.alias === '' || req.body.alias.match(/^\s*$/) !== null)?
       null : req.body.alias
@@ -638,7 +638,7 @@ router.post('/request', passport.authenticate('jwt', {'session': false}),(req, r
                 else{
                   // Notify user
                   utils.createAndSendNotification(request.to.id, false, req.user.data, `New Networking Request`,
-                  `${req.user.data.username} sent you a request`, { 'type': 'request', 'friendId': req.user.data.id }).catch((err) => {
+                  `${req.user.data.username} sent you a request`, { 'type': 'request', 'friendId': req.user.data._id }).catch((err) => {
                     // Handle error
                   })
                   // Increment request count
@@ -786,7 +786,7 @@ router.put('/request/:request_id/edit', passport.authenticate('jwt', {'session':
       // Notificate requesting user that he has been accepted
       if(request.has_access == true){
         utils.createAndSendNotification(request.requested_by.id, false, req.user.data, `${request.to.username} accepted your request`,
-          'You now have access to user\'s networking data', { 'type': 'requestAccepted', 'userId': request.to.id })
+          'You now have access to user\'s networking data', { 'type': 'requestAccepted', 'friendId': request.to.id })
       }
       // Send successfull response
       res.json({ 'success': true })
@@ -814,10 +814,10 @@ router.delete('/request/:request_id/remove', passport.authenticate('jwt', {'sess
 //									--	NOTIFICATIONS --
 //=================================================================================
 
-const default_notification_list = '_id title description reference_url seen'
+const default_notification_list = '_id title description reference_url seen meta date_alerted'
 
 /* POST list notifications past X date */
-router.post('/notifications/from', passport.authenticate('jwt', {'session': false}), (req, res) => {
+router.post('/notifications/since', passport.authenticate('jwt', {'session': false}), (req, res) => {
   const date = new Date(req.body.date)
   Notification.find({ 'owner': req.user.data._id, 'seen': false, 'date_alerted': { '$gt': req.body.date }}).select(
     default_notification_list
@@ -847,7 +847,7 @@ router.put('/notification/:notif_id/set-seen', passport.authenticate('jwt', {'se
     }
     else{
       // Update user's notification account
-      req.user.data.update({ '$inc': {'new_notifications': -1}}).exec()
+      // req.user.data.update({ '$inc': {'new_notifications': -1}}).exec()
       // Send successfull response
       res.json({ 'success': true })
     }
@@ -874,7 +874,7 @@ router.delete('/notifications/empty', passport.authenticate('jwt', {'session': f
     }
     else{
       // Update user's notification account
-      req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
+      // req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
       // Send successfull response
       res.json({ 'success': true })
     }
@@ -909,7 +909,7 @@ router.put('/notifications/set-seen', passport.authenticate('jwt', {'session': f
     }
     else {
       // Update user's notification account
-      req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
+      // req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
       // Send successfull response
       res.json({ 'success': true })
     }
@@ -942,8 +942,8 @@ router.delete('/notification/:notif_id/remove', passport.authenticate('jwt', {'s
     }
     else{
       // Update user's notification count
-      if(notification.seen === true)
-        req.user.data.update({ '$inc': {'new_notifications': -1}}).exec()
+      /* if(notification.seen === true)
+        req.user.data.update({ '$inc': {'new_notifications': -1}}).exec() */
       // Send successfull response
       res.json({ 'success': true })
     }
