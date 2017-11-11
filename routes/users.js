@@ -860,19 +860,19 @@ router.get('/notification/:notif_id', passport.authenticate('jwt', {'session': f
 })
 
 /* DELETE remove all notifications of logged in user */
-router.delete('/notifications/empty', passport.authenticate('jwt', {'session': false}), (req, res) => {
+/*router.delete('/notifications/empty', passport.authenticate('jwt', {'session': false}), (req, res) => {
   Notification.remove({ 'owner': req.user.data._id }, (err, notification) => {
     if(err){
       res.json({ 'success': false })
     }
     else{
       // Update user's notification account
-      req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
+      // req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
       // Send successfull response
       res.json({ 'success': true })
     }
   })
-})
+})*/
 
 /* GET unseen notifications */
 router.get('/notifications/unseen', passport.authenticate('jwt', {'session': false}), (req, res) => {
@@ -891,7 +891,7 @@ router.get('/notifications/unseen', passport.authenticate('jwt', {'session': fal
 })
 
 /* PUT set all unseen notifs as seen */
-router.put('/notifications/set-seen', passport.authenticate('jwt', {'session': false}), (req, res) => {
+/*router.put('/notifications/set-seen', passport.authenticate('jwt', {'session': false}), (req, res) => {
   const now = (new Date()).now
   Notification.updateMany({ 'owner': req.user.data._id, 'seen': false },
   {
@@ -902,12 +902,12 @@ router.put('/notifications/set-seen', passport.authenticate('jwt', {'session': f
     }
     else {
       // Update user's notification account
-      req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
+      // req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
       // Send successfull response
       res.json({ 'success': true })
     }
   })
-})
+})*/
 
 /* GET latest notifications (first X) */
 router.get('/notifications/latest', passport.authenticate('jwt', {'session': false}), (req, res) => {
