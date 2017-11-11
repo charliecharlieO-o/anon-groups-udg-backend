@@ -24,6 +24,7 @@ require('../config/passport')(passport)
 const User = require('../models/user')
 const Request = require('../models/request')
 const Notification = require('../models/notification')
+const RecoveryKey = require('../models/recoverykey')
 
 //=================================================================================
 //									--	USERS --
@@ -355,14 +356,6 @@ router.put('/update/networks', passport.authenticate('jwt', {'session': false}),
       }
     }
   })
-})
-
-/* POST reset password (send token) PENDING */
-router.post('/forgot-pwd', passport.authenticate('jwt', {'session': false}), (req, res) => {
-  // Create token for recovery and save it to user model
-  // Respond with success
-  // Send email with token
-  res.json({'success': false})
 })
 
 /* PUT change email */
@@ -874,7 +867,7 @@ router.delete('/notifications/empty', passport.authenticate('jwt', {'session': f
     }
     else{
       // Update user's notification account
-      // req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
+      req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
       // Send successfull response
       res.json({ 'success': true })
     }
@@ -909,7 +902,7 @@ router.put('/notifications/set-seen', passport.authenticate('jwt', {'session': f
     }
     else {
       // Update user's notification account
-      // req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
+      req.user.data.update({ '$set': {'new_notifications': 0}}).exec()
       // Send successfull response
       res.json({ 'success': true })
     }
@@ -942,8 +935,8 @@ router.delete('/notification/:notif_id/remove', passport.authenticate('jwt', {'s
     }
     else{
       // Update user's notification count
-      /* if(notification.seen === true)
-        req.user.data.update({ '$inc': {'new_notifications': -1}}).exec() */
+      if(notification.seen === true)
+        req.user.data.update({ '$inc': {'new_notifications': -1}}).exec()
       // Send successfull response
       res.json({ 'success': true })
     }
