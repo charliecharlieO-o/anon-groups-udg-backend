@@ -135,8 +135,8 @@ const createAndSendNotification = async (ownerId, isAnon, sender, title, descrip
       // Send email if user has been disconnected for X amount of time
       const hours = Math.abs(user.last_log - new Date())/36e5
       // Check user's notifs are greater than threshold
-      if (user.new_notifications >= user.notif_threshold || hours >= settings.max_gone_hours || force_notif) {
-        console.log('sending mail')
+      if ( (force_notif && user.new_notifications <= user.notif_threshold)  || user.new_notifications >= user.notif_threshold ||
+        hours >= settings.max_gone_hours) {
         // Send mail
         mailer.sendMail({
           from: '"Fred Foo 👻" <kyzpujmyyy36js4c@ethereal.email>', // sender address
