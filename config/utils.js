@@ -116,7 +116,7 @@ const parseValidationErrors = (err) => {
 //=================================================================================
 
 // Create a new notification
-const createAndSendNotification = async (ownerId, isAnon, sender, title, description, metainfo) => {
+const createAndSendNotification = async (ownerId, isAnon, sender, title, description, metainfo, force_notif = false) => {
   try {
     const query = (isAnon === true) ? { 'alias.anonId': ownerId } : { '_id': ownerId }
     const user = await User.findOne(query).exec()
@@ -135,7 +135,7 @@ const createAndSendNotification = async (ownerId, isAnon, sender, title, descrip
       // Send email if user has been disconnected for X amount of time
       const hours = Math.abs(user.last_log - new Date())/36e5
       // Check user's notifs are greater than threshold
-      if (user.new_notifications >= user.notif_threshold|| hours >= settings.max_gone_hours) {
+      if (user.new_notifications >= user.notif_threshold || hours >= settings.max_gone_hours || force_notif) {
         console.log('sending mail')
         // Send mail
         mailer.sendMail({

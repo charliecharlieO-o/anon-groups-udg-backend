@@ -16,7 +16,6 @@ router.post('/forgot-pwd', (req, res) => {
       const key = new RecoveryKey({ 'user_id': user._id })
       key.save((err) => {
         if (err) {
-          console.log(err)
           res.status(500).send('failed key')
         } else {
           // Respond with success

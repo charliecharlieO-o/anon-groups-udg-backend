@@ -465,7 +465,7 @@ router.post('/:thread_id/reply', passport.authenticate('jwt', {'session': false}
               // Notificate OP about reply if not OP
               const rp = (req.user.data.alias.handle != null)? req.user.data.alias.handle : req.user.data.username
               utils.createAndSendNotification(thread.poster.id, thread.poster.anon, req.user.data, 'New Thread Reply',
-              `${rp} replied to your thread`, { 'type': 'threadReply', 'threadId': thread._id, 'replyId': reply._id }).catch((err) => {
+              `${rp} replied to your thread`, { 'type': 'threadReply', 'threadId': thread._id, 'replyId': reply._id }, true).catch((err) => {
                 // Handle error
               })
               // Bump Thread
