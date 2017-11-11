@@ -27,6 +27,5 @@ module.exports = {
 		'CUCIE', 'CUCOS', 'CUCSU', 'CULAG', 'CUNOR', 'CUSUR', 'CUTON', 'CUVAL'
 	],
 	// Email notification settings
-	'max_gone_hours': 6,
-	'notification_threshold': 10
+	'max_gone_hours': 6
 };
