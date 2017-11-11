@@ -12,7 +12,7 @@ module.exports = {
           }
       })
       const info = await transport.sendMail(mail)
-      return info
+      Promise.resolve(info)
     }  catch(err) {
       Promise.reject(err)
     }
