@@ -24,6 +24,7 @@ require('../config/passport')(passport)
 const User = require('../models/user')
 const Request = require('../models/request')
 const Notification = require('../models/notification')
+const RecoveryKey = require('../models/recoverykey')
 
 //=================================================================================
 //									--	USERS --
@@ -355,14 +356,6 @@ router.put('/update/networks', passport.authenticate('jwt', {'session': false}),
       }
     }
   })
-})
-
-/* POST reset password (send token) PENDING */
-router.post('/forgot-pwd', passport.authenticate('jwt', {'session': false}), (req, res) => {
-  // Create token for recovery and save it to user model
-  // Respond with success
-  // Send email with token
-  res.json({'success': false})
 })
 
 /* PUT change email */
@@ -758,12 +751,12 @@ router.put('/request/:request_id/respond', passport.authenticate('jwt', {'sessio
       // Notificate requesting user that he has been accepted
       if(request.has_access == true){
         utils.createAndSendNotification(request.requested_by.id, false, req.user.data, `${request.to.username} accepted your request`,
-        'You now have access to user\'s networking data', { 'type': 'friendRes', 'friendId': request.to.id }).catch((err) => {
+        'You now have access to user\'s networking data', { 'type': 'friendRes', 'friendId': request.to.id }, true).catch((err) => {
           // Handle error
         })
       }
       // Decrease user's new_requests counter
-      req.user.data.update({ '$inc': { 'new_requests': -1 }}).exec()
+      // req.user.data.update({ '$inc': { 'new_requests': -1 }}).exec()
       // Send successfull response
       res.json({ 'success': true })
     }
@@ -786,7 +779,7 @@ router.put('/request/:request_id/edit', passport.authenticate('jwt', {'session':
       // Notificate requesting user that he has been accepted
       if(request.has_access == true){
         utils.createAndSendNotification(request.requested_by.id, false, req.user.data, `${request.to.username} accepted your request`,
-          'You now have access to user\'s networking data', { 'type': 'requestAccepted', 'friendId': request.to.id })
+          'You now have access to user\'s networking data', { 'type': 'requestAccepted', 'friendId': request.to.id }, true)
       }
       // Send successfull response
       res.json({ 'success': true })
@@ -802,8 +795,8 @@ router.delete('/request/:request_id/remove', passport.authenticate('jwt', {'sess
         res.json({ 'success': false })
       }
       else{
-        if(!request.responded)
-          req.user.data.update({ '$inc': { 'new_requests': -1 }}).exec()
+        /* if(!request.responded)
+          req.user.data.update({ '$inc': { 'new_requests': -1 }}).exec() */
         res.json({ 'success': true })
       }
     })
@@ -867,7 +860,7 @@ router.get('/notification/:notif_id', passport.authenticate('jwt', {'session': f
 })
 
 /* DELETE remove all notifications of logged in user */
-router.delete('/notifications/empty', passport.authenticate('jwt', {'session': false}), (req, res) => {
+/*router.delete('/notifications/empty', passport.authenticate('jwt', {'session': false}), (req, res) => {
   Notification.remove({ 'owner': req.user.data._id }, (err, notification) => {
     if(err){
       res.json({ 'success': false })
@@ -879,7 +872,7 @@ router.delete('/notifications/empty', passport.authenticate('jwt', {'session': f
       res.json({ 'success': true })
     }
   })
-})
+})*/
 
 /* GET unseen notifications */
 router.get('/notifications/unseen', passport.authenticate('jwt', {'session': false}), (req, res) => {
@@ -898,7 +891,7 @@ router.get('/notifications/unseen', passport.authenticate('jwt', {'session': fal
 })
 
 /* PUT set all unseen notifs as seen */
-router.put('/notifications/set-seen', passport.authenticate('jwt', {'session': false}), (req, res) => {
+/*router.put('/notifications/set-seen', passport.authenticate('jwt', {'session': false}), (req, res) => {
   const now = (new Date()).now
   Notification.updateMany({ 'owner': req.user.data._id, 'seen': false },
   {
@@ -914,7 +907,7 @@ router.put('/notifications/set-seen', passport.authenticate('jwt', {'session': f
       res.json({ 'success': true })
     }
   })
-})
+})*/
 
 /* GET latest notifications (first X) */
 router.get('/notifications/latest', passport.authenticate('jwt', {'session': false}), (req, res) => {
