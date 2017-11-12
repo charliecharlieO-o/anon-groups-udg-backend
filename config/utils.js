@@ -133,23 +133,21 @@ const createAndSendNotification = async (ownerId, isAnon, sender, title, descrip
       })
       const savedNotif = await Notification.create(notification)
       // Send email if user has been disconnected for X amount of time
-      const hours = Math.abs(user.last_log - new Date())/36e5
+      // or hasnt received notifications in a time greater than Y
+      const lastLog = Math.abs(user.last_log - new Date())/36e5
+      const lastNot = Math.abs(user.last_notification - new Date())/36e5
       // Check user's notifs are greater than threshold
-      if ( (force_notif && user.new_notifications <= user.notif_threshold)  || user.new_notifications >= user.notif_threshold ||
-        hours >= settings.max_gone_hours) {
+      if (force_notif || (lastLog >= settings.max_gone_hours && lastNot >= settings.min_last_notified)) {
         // Send mail
         mailer.sendMail({
-          from: '"Fred Foo 👻" <kyzpujmyyy36js4c@ethereal.email>', // sender address
+          from: 'postmaster@mg.netslap.me', // sender address
           to: user.email, // list of receivers
-          subject: 'Hello ✔', // Subject line
-          text: 'Hello world?', // plain text body
-          html: '<b>Hello world?</b>' // html body
-        }).catch((err)=>{console.log(err)}) // should catch error
-        // Reset notif counter
-        user.update({ '$set': {'new_notifications': 0}}).exec()
-      } else {
-        // increment usr notifs
-        user.update({ '$inc': {'new_notifications': 1}}).exec()
+          subject: '(NetSlap) Tienes Nuevas Notificaciones', // Subject line
+          text: 'Tienes notificaciones nuevas', // plain text body
+          html: '<br/><b>Tienes notificaciones nuevas</b><br/> Ingresa a <a href="https://netslap.me">netslap</a> para verlas' // html body
+        })
+        // Update last_notification
+        user.update({ '$set': { 'last_notification': savedNotif.date_alerted }}).exec()
       }
       return Promise.resolve(savedNotif)
     } else {
