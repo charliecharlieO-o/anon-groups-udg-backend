@@ -751,12 +751,12 @@ router.put('/request/:request_id/respond', passport.authenticate('jwt', {'sessio
       // Notificate requesting user that he has been accepted
       if(request.has_access == true){
         utils.createAndSendNotification(request.requested_by.id, false, req.user.data, `${request.to.username} accepted your request`,
-        'You now have access to user\'s networking data', { 'type': 'friendRes', 'friendId': request.to.id }).catch((err) => {
+        'You now have access to user\'s networking data', { 'type': 'friendRes', 'friendId': request.to.id }, true).catch((err) => {
           // Handle error
         })
       }
       // Decrease user's new_requests counter
-      req.user.data.update({ '$inc': { 'new_requests': -1 }}).exec()
+      // req.user.data.update({ '$inc': { 'new_requests': -1 }}).exec()
       // Send successfull response
       res.json({ 'success': true })
     }
@@ -779,7 +779,7 @@ router.put('/request/:request_id/edit', passport.authenticate('jwt', {'session':
       // Notificate requesting user that he has been accepted
       if(request.has_access == true){
         utils.createAndSendNotification(request.requested_by.id, false, req.user.data, `${request.to.username} accepted your request`,
-          'You now have access to user\'s networking data', { 'type': 'requestAccepted', 'friendId': request.to.id })
+          'You now have access to user\'s networking data', { 'type': 'requestAccepted', 'friendId': request.to.id }, true)
       }
       // Send successfull response
       res.json({ 'success': true })
@@ -795,8 +795,8 @@ router.delete('/request/:request_id/remove', passport.authenticate('jwt', {'sess
         res.json({ 'success': false })
       }
       else{
-        if(!request.responded)
-          req.user.data.update({ '$inc': { 'new_requests': -1 }}).exec()
+        /* if(!request.responded)
+          req.user.data.update({ '$inc': { 'new_requests': -1 }}).exec() */
         res.json({ 'success': true })
       }
     })
@@ -840,7 +840,7 @@ router.put('/notification/:notif_id/set-seen', passport.authenticate('jwt', {'se
     }
     else{
       // Update user's notification account
-      req.user.data.update({ '$inc': {'new_notifications': -1}}).exec()
+      // req.user.data.update({ '$inc': {'new_notifications': -1}}).exec()
       // Send successfull response
       res.json({ 'success': true })
     }
@@ -935,8 +935,8 @@ router.delete('/notification/:notif_id/remove', passport.authenticate('jwt', {'s
     }
     else{
       // Update user's notification count
-      if(notification.seen === true)
-        req.user.data.update({ '$inc': {'new_notifications': -1}}).exec()
+      /* if(notification.seen === true)
+        req.user.data.update({ '$inc': {'new_notifications': -1}}).exec() */
       // Send successfull response
       res.json({ 'success': true })
     }
