@@ -22,11 +22,11 @@ router.post('/forgot-pwd', (req, res) => {
           res.json({ 'success': true })
           // Send email with token
           mailer.sendMail({
-            from: '"Fred Foo 👻" <kyzpujmyyy36js4c@ethereal.email>', // sender address
+            from: 'postmaster@mg.netslap.me', // sender address
             to: user.email, // list of receivers
             subject: 'NetSlap Password Reset', // Subject line
-            text: `Hi ${user.username}, your password recovery token: ${key.key_id}`, // plain text body
-            html: `<b>Hi ${user.username}</b>, your password recovery token: <b>${key.key_id}</b>` // html body
+            text: `Hola ${user.username}, tu token de recuperacion es: ${key.key_id}`, // plain text body
+            html: `<b>Hola ${user.username}</b>, tu token de recuperacion es: <b>${key.key_id}</b>` // html body
           })
         }
       })
