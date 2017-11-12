@@ -18,6 +18,9 @@ const settings = require('./settings')
 const { promisify } = require('util')
 const pseudoRandomBytes = promisify(crypto.pseudoRandomBytes);
 
+// For sending emails
+const mailer = require('./nodemailer.js')
+
 //=================================================================================
 //									--	ALGORITHMS & FUNCTIONS --
 //=================================================================================
@@ -113,7 +116,7 @@ const parseValidationErrors = (err) => {
 //=================================================================================
 
 // Create a new notification
-const createAndSendNotification = async (ownerId, isAnon, sender, title, description, metainfo) => {
+const createAndSendNotification = async (ownerId, isAnon, sender, title, description, metainfo, force_notif = false) => {
   try {
     const query = (isAnon === true) ? { 'alias.anonId': ownerId } : { '_id': ownerId }
     const user = await User.findOne(query).exec()
@@ -129,6 +132,23 @@ const createAndSendNotification = async (ownerId, isAnon, sender, title, descrip
         'meta': metainfo
       })
       const savedNotif = await Notification.create(notification)
+      // Send email if user has been disconnected for X amount of time
+      // or hasnt received notifications in a time greater than Y
+      const lastLog = Math.abs(user.last_log - new Date())/36e5
+      const lastNot = Math.abs(user.last_notification - new Date())/36e5
+      // Check user's notifs are greater than threshold
+      if (force_notif || (lastLog >= settings.max_gone_hours && lastNot >= settings.min_last_notified)) {
+        // Send mail
+        mailer.sendMail({
+          from: 'postmaster@mg.netslap.me', // sender address
+          to: user.email, // list of receivers
+          subject: '(NetSlap) Tienes Nuevas Notificaciones', // Subject line
+          text: 'Tienes notificaciones nuevas', // plain text body
+          html: '<br/><b>Tienes notificaciones nuevas</b><br/> Ingresa a <a href="https://netslap.me">netslap</a> para verlas' // html body
+        })
+        // Update last_notification
+        user.update({ '$set': { 'last_notification': savedNotif.date_alerted }}).exec()
+      }
       return Promise.resolve(savedNotif)
     } else {
       return Promise.resolve(null)
