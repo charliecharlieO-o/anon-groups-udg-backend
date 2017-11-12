@@ -18,6 +18,7 @@ const boards = require('./routes/boards');
 const users = require('./routes/users');
 const admins = require('./routes/admins');
 const settings = require('./routes/settings');
+const recovery = require('./routes/recovery')
 
 const app = express();
 
@@ -73,6 +74,7 @@ app.use('/board', boards);
 app.use('/thread', threads);
 app.use('/admin', admins);
 app.use('/settings', settings);
+app.use('/recovery', recovery)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
