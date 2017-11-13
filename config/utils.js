@@ -137,7 +137,8 @@ const createAndSendNotification = async (ownerId, isAnon, sender, title, descrip
       const lastLog = Math.abs(user.last_log - new Date())/36e5
       const lastNot = Math.abs(user.last_notification - new Date())/36e5
       // Check user's notifs are greater than threshold
-      if (force_notif || (lastLog >= settings.max_gone_hours && lastNot >= settings.min_last_notified)) {
+      if (force_notif || ((lastLog >= settings.max_gone_hours && lastNot >= settings.max_last_notified) ||
+        lastNot >= settings.min_last_notified)) {
         // Send mail
         mailer.sendMail({
           from: 'postmaster@mg.netslap.me', // sender address
