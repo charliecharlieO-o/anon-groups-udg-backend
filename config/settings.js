@@ -28,5 +28,6 @@ module.exports = {
 	],
 	// Email notification settings range
 	'max_gone_hours': 3,
-	'min_last_notified': 1
+	'min_last_notified': 1,
+	'max_last_notified': .50
 };
