@@ -17,7 +17,7 @@ router.post('/invite', passport.authenticate('jwt', {'session': false}), (req, r
   Invitation.findOne({ 'to_email': req.body.email, 'issuer_id': req.user.data._id }, (err, invitation) => {
     // Create new invitationobject
     const newInvitation = new Invitation({
-      issuer_id: req.body.user.data._id,
+      issuer_id: req.user.data._id,
       to_email: req.body.email
     })
     // If invitation with email exists and it's older than 48 hours
@@ -33,7 +33,7 @@ router.post('/invite', passport.authenticate('jwt', {'session': false}), (req, r
       if (err) {
         res.status(500).send("DB error")
       } else {
-        const user = req.body.user.data
+        const user = req.user.data
         // success
         res.json({ 'success': true })
         // Send email
@@ -43,7 +43,7 @@ router.post('/invite', passport.authenticate('jwt', {'session': false}), (req, r
           subject: `${user.username} te invita a NetSlap`, // Subject line
           text: `${user.username} te esta invitando a NetSlap`, // plain text body
           html: `<b>Hola!</b>, <b>${user.username}</b> te esta invitando a NetSlap, la red de foros mas exclusiva de GDL.
-            <br />Ingresa el siguiente token en el area de registro para crear tu cuenta!: ${newInvitation.key_id}` // html body
+            <br/><br/>Ingresa el siguiente token en el area de registro para crear tu cuenta!: <b>${newInvitation.key_id}</b>` // html body
         })
       }
     })
