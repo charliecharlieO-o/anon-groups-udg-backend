@@ -3,7 +3,7 @@ const passport = require('passport')
 const router = express.Router()
 
 // DB models
-const User = require('../models/users')
+const User = require('../models/user')
 const Invitation = require('../models/invitation')
 
 // Include passport module as passport strategy
