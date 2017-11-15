@@ -45,7 +45,7 @@ function validateNameWithNull (username) {
 }
 
 function validateEmail(str) {
-  return validator.isEmail(str);
+  return validator.isEmail(str)
 }
 
 module.exports = {

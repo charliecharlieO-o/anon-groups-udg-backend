@@ -20,6 +20,6 @@ const CONNECT_URI = `mongodb://${AUTH}@${DBHOST}:${PORT}/${DBNAME}`
 console.log('connect uri', CONNECT_URI)
 
 module.exports = {
-	"secret":"5edc4e87b66c1HellSpawner10a6e2aad057df237bb", // Change to something more secret
+	'secret':'5edc4e87b66c1HellSpawner10a6e2aad057df237bb', // Change to something more secret
 	database: CONNECT_URI
 }
