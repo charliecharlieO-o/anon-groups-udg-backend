@@ -33,14 +33,14 @@ const isAdmin = (user_data, callback) => {
 // To access, user account must contain the admin_admins priviledge
 
 /* POST appoint a new admin, only super users can appoint new admins  */ //(GENERATES NOTIFICATION)
-router.post('/appoint', passport.authenticate('jwt', {'session': false}), (req, res) => {
+router.post('/appoint', passport.authenticate('jwt', {'session': false}), async (req, res, next) => {
   if(req.user.data.is_super){
     const user = await User.findById(req.body.user_id)
     if (!user) {
       res.status(404).send('User doesnt exist')
     } else {
       // General Admin Creation
-      let newAdmin = new Admin({
+      let adminObj = new Admin({
         'user': {
           'id': user._id,
           'name': user.username
@@ -50,12 +50,12 @@ router.post('/appoint', passport.authenticate('jwt', {'session': false}), (req, 
           'name': req.user.data.username,
         }
       })
-      const newAdmin = await Admin.create(newAdmin)
-      if (!admin) {
+      const newAdmin = await Admin.create(adminObj)
+      if (!newAdmin) {
         res.status(500).send('Creation error')
       } else {
         // Send successfull response
-        res.json({ 'success': true, 'doc': admin })
+        res.json({ 'success': true, 'doc': newAdmin })
         // Notificate user about promotion
         utils.createAndSendNotification(user._id, false, req.user.data, 'You have been promoted',
         'You now have admin status.', { 'type': 'admin', 'objId': user._id })

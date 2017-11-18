@@ -3,6 +3,9 @@ const shortid = require('shortid')
 const passport = require('passport')
 const router = express.Router()
 
+// Async
+const asyncMid = require('./asyncmid')
+
 //MODELS
 const Board = require('../models/board')
 const User = require('../models/user')
@@ -16,7 +19,7 @@ require('../config/passport')(passport)
 const board_list_default = '_id slug name short_name last_activity image'
 
 /* POST create new board */
-router.post('/', passport.authenticate('jwt', {'session': false}), utils.uploadMediaFile.single('mfile'), (req, res) => {
+router.post('/', passport.authenticate('jwt', {'session': false}), utils.uploadMediaFile.single('mfile'), asyncMid(async (req, res, next) => {
 	if(utils.hasRequiredPriviledges(req.user.data.priviledges, ['create_board'])){
 		let newBoard = new Board({
 			'slug': shortid.generate(),
@@ -31,7 +34,8 @@ router.post('/', passport.authenticate('jwt', {'session': false}), utils.uploadM
 		})
 		// Check if file is image type file
 		if(req.file && settings.image_mime_type.includes(req.file.mimetype)){
-			utils.uploadMediaToS3(req.file).then((file) => {
+			const file = await utils.uploadMediaToS3(req.file)
+			if (file) {
 				newBoard.image = {
 					'name': file.originalname,
 					'location': `${file.tourl}/${file.filename}`,
@@ -39,63 +43,41 @@ router.post('/', passport.authenticate('jwt', {'session': false}), utils.uploadM
 					'size': file.size,
 					'thumbnail': `${file.tourl}/${file.thumbname}`
 				}
-				Board.create(newBoard, (err, board) => {
-					if(err){
-						// Check for validation errors
-						res.json({ 'success': false })
-						/* utils.deleteFile(req.file.path)
-						utils.deleteFile(newBoard.thumbnail) */
-					}
-					else{
-						res.json({ 'success': true, 'doc': board })
-					}
-				})
-			}).catch((err) => {
-				res.json({'success': false})
-				/* if(req.file)
-					utils.deleteFile(req.file.path) // Delete file, this repeats A LOT */
-			})
+				const board = await Board.create(newBoard)
+				if(board){
+					res.json({ 'success': true, 'doc': board })
+				} else {
+					res.status(500).send('Error creating board')
+				}
+			} else {
+				res.status(500).send('Error processing file')
+			}
 		}
 		else{
 			res.json({'success': false})
-			/* if(req.file)
-				utils.deleteFile(req.file.path) // A LOT */
 		}
 	}
 	else{
 		res.status(401).send('Unauthorized')
-		/* if(req.file)
-			utils.deleteFile(req.file.path) // A LOT! */
 	}
-})
+}))
 
 /* GET specific board by slug */
-router.get('/:board_slug', passport.authenticate('jwt', {'session': false}), (req, res) => {
+router.get('/:board_slug', passport.authenticate('jwt', {'session': false}), asyncMid(async (req, res, next) => {
 	// Simple get of a board
-	Board.findOne({ 'slug': req.params.board_slug, 'active': true }, (err, board) => {
-		if(err){
-			res.json({ 'success': false })
-		}
-		else if(!board){
-			res.status(404).send()
-		}
-		else{
-			res.json({ 'success': true, 'doc': board })
-		}
-	})
-})
+	const board = await Board.findOne({ 'slug': req.params.board_slug, 'active': true })
+	if (board) {
+		res.json({ 'success': true, 'doc': board })
+	} else {
+		res.status(404).send('Board doesnt exist')
+	}
+}))
 
 /* GET the short_name's of all boards */
-router.get('/list/short', passport.authenticate('jwt', {session:false}), (req, res) => {
-	Board.find({ 'active': true }, 'short_name name slug image', {'sort':{'short_name':1}}, (err, boards) => {
-		if(err){
-			res.json({ 'success': false })
-		}
-		else{
-			res.json({ 'success': true, 'doc': boards })
-		}
-	})
-})
+router.get('/list/short', passport.authenticate('jwt', {session:false}), asyncMid(async (req, res, next) => {
+	const boards = await Board.find({ 'active': true }, 'short_name name slug image', {'sort':{'short_name':1}})
+	res.json({ 'success': true, 'doc': boards })
+}))
 
 /* PUT change board image */
 router.put('/:board_slug/image', passport.authenticate('jwt', {'session': false}), utils.uploadMediaFile.single('mfile'), (req, res) => {
