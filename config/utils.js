@@ -27,7 +27,7 @@ const mailer = require('./nodemailer.js')
 
 // Check user priviledge (not social priviledge)
 const priviledgeCheck = (priviledgeList, requiredPriviledges) => {
-  for(let i = 0 i < requiredPriviledges.length i++){
+  for(let i = 0; i < requiredPriviledges.length; i++){
     if(!priviledgeList.includes(requiredPriviledges[i])){
       return false
     }

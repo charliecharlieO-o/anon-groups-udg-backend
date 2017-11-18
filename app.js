@@ -77,9 +77,8 @@ app.use('/settings', settings)
 app.use('/recovery', recovery)
 
 // catch 404 and forward to error handler
-app.use( fn =>
-  (req, res, next) => {
-    Promise.resolve(fn(req, req, next)).catch(next)
+app.use((req, res, next) => {
+    Promise.resolve(req, req, next).catch(next)
 })
 
 // error handler
