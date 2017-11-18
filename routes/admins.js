@@ -35,40 +35,33 @@ const isAdmin = (user_data, callback) => {
 /* POST appoint a new admin, only super users can appoint new admins  */ //(GENERATES NOTIFICATION)
 router.post('/appoint', passport.authenticate('jwt', {'session': false}), (req, res) => {
   if(req.user.data.is_super){
-    User.findById(req.body.user_id, '_id username banned', (err, user) => {
-      if(err || !user){
-        res.json({ 'success': false })
+    const user = await User.findById(req.body.user_id)
+    if (!user) {
+      res.status(404).send('User doesnt exist')
+    } else {
+      // General Admin Creation
+      let newAdmin = new Admin({
+        'user': {
+          'id': user._id,
+          'name': user.username
+        },
+        'appointed_by': {
+          'id': req.user.data._id,
+          'name': req.user.data.username,
+        }
+      })
+      const newAdmin = await Admin.create(newAdmin)
+      if (!admin) {
+        res.status(500).send('Creation error')
+      } else {
+        // Send successfull response
+        res.json({ 'success': true, 'doc': admin })
+        // Notificate user about promotion
+        utils.createAndSendNotification(user._id, false, req.user.data, 'You have been promoted',
+        'You now have admin status.', { 'type': 'admin', 'objId': user._id })
       }
-      else{
-        // General Admin Creation
-        let newAdmin = new Admin({
-          'user': {
-            'id': user._id,
-            'name': user.username
-          },
-          'appointed_by': {
-            'id': req.user.data._id,
-            'name': req.user.data.username,
-          }
-        })
-        Admin.create(newAdmin, (err, admin) =>{
-          if(err || !admin){
-            res.json({ 'success': false })
-          }
-          else{
-            // Notificate user about promotion
-            utils.createAndSendNotification(user._id, false, req.user.data, 'You have been promoted',
-            'You now have admin status.', { 'type': 'admin', 'objId': user._id }).catch((err) => {
-              // Handle error
-            })
-            // Send successfull response
-            res.json({ 'success': true, 'doc': admin })
-          }
-        })
-      }
-    })
-  }
-  else{
+    }
+  } else {
     res.status(401).send('Unauthorized')
   }
 })
