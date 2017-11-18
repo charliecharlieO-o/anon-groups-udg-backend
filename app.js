@@ -76,11 +76,6 @@ app.use('/admin', admins)
 app.use('/settings', settings)
 app.use('/recovery', recovery)
 
-// catch 404 and forward to error handler
-app.use((req, res, next) => {
-    Promise.resolve(req, req, next).catch(next)
-})
-
 // error handler
 app.use((err, req, res, next) => {
   // set locals, only providing error in development
