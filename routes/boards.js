@@ -80,11 +80,13 @@ router.get('/list/short', passport.authenticate('jwt', {session:false}), asyncMi
 }))
 
 /* PUT change board image */
-router.put('/:board_slug/image', passport.authenticate('jwt', {'session': false}), utils.uploadMediaFile.single('mfile'), (req, res) => {
+router.put('/:board_slug/image', passport.authenticate('jwt', {'session': false}), utils.uploadMediaFile.single('mfile'),
+	asyncMid(async (req, res, next) => {
 	if(utils.hasRequiredPriviledges(req.user.data.priviledges, ['edit_board'])){
 		// Check if file is image type file
 		if(req.file && settings.image_mime_type.includes(req.file.mimetype)){
-			utils.uploadMediaToS3(req.file).then((file) => {
+			const file = await utils.uploadMediaToS3(req.file)
+			if (file) {
 				const image = {
 					'name': file.originalname,
 					'location': `${file.tourl}/${file.filename}`,
@@ -92,126 +94,95 @@ router.put('/:board_slug/image', passport.authenticate('jwt', {'session': false}
 					'size': file.size,
 					'thumbnail': `${file.tourl}/${file.thumbname}`
 				}
-				Board.findOneAndUpdate({ 'slug': req.params.board_slug },
+				const board = await Board.findOneAndUpdate({ 'slug': req.params.board_slug },
 				{
 					'$set': {
 						'image':image
 					}
-				}, { 'new': true }, (err, board) => {
-					if(err || !board){
-						res.json({ 'success': false })
-						// PLEASE STOP THE MADNESS! (callback hell)
-						/* utils.deleteFile(req.file.path)
-						utils.deleteFile(image.thumbnail) */
-					}
-					else{
-						res.json({ 'success': true })
-					}
-				})
-			}).catch((err) => {
-				res.json({'success': false})
-				/* if(req.file)
-					utils.deleteFile(req.file.path) // Delete file, this repeats A LOT */
-			})
+				}, { 'new': true })
+				if (board) {
+					res.json({ 'success': true, 'doc': board })
+				} else {
+					res.status(404).send('Couldnt find board')
+				}
+			} else {
+				res.status(500).send('Error uploading file')
+			}
+		} else {
+			res.status(404).send('Inappropriate file format')
 		}
 		else{
 			res.json({'success': false})
-			/* if(req.file)
-				utils.deleteFile(req.file.path) // A LOT */
 		}
-	}
-	else{
+	} else {
 		res.status(401).send('Unauthorized')
-		/* if(req.file)
-			utils.deleteFile(req.file.path) // A LOT! */
 	}
-})
+}))
 
 /* PUT edit specific board */
-router.put('/:board_slug', passport.authenticate('jwt', {'session': false}), (req, res) => {
+router.put('/:board_slug', passport.authenticate('jwt', {'session': false}), asyncMid(async (req, res, next) => {
 	// Check user is allowed to update board
 	if(utils.hasRequiredPriviledges(req.user.data.priviledges, ['edit_board'])){
 		// Preprocess and clean data
 		const json_data = utils.parseJSON(req.body.object)
 		// Check if it was a valid JSON
-		if (json_data === null) {
-			res.json({'success': false})
-		}
-		Board.findOneAndUpdate({ 'slug': req.params.board_slug },
-		{
-			'$set':{
-				'name': json_data.name,
-				'short_name': json_data.short_name,
-				'description': json_data.description,
-				'active': json_data.active
-			}
-		}, { 'new': true }, (err, board) => {
-			if(err || !board){
-				res.json({ 'success': false })
-			}
-			else{
+		if (json_data) {
+			const board = await Board.findOneAndUpdate({ 'slug': req.params.board_slug },
+			{
+				'$set':{
+					'name': json_data.name,
+					'short_name': json_data.short_name,
+					'description': json_data.description,
+					'active': json_data.active
+				}
+			}, { 'new': true })
+			if(board){
 				res.json({ 'success': true })
+			} else {
+				res.status(404).send('Couldnt find board')
 			}
-		})
-	}
-	else{
+		} else {
+			res.status(500).send('Bad JSON')
+		}
+	} else {
 		res.status(401).send('Unauthorized')
 	}
-})
+}))
 
 /* DELETE board */
-router.delete('/:board_slug', passport.authenticate('jwt', {'session': false}), (req, res) => {
+router.delete('/:board_slug', passport.authenticate('jwt', {'session': false}), asyncMid(async (req, res, next) => {
 	// Check if user is allowed to delete board
 	if(utils.hasRequiredPriviledges(req.user.data.priviledges, ['delete_board'])){
-		Board.deleteOne({ 'slug': req.params.board_slug }, (err) => {
-			if(err){
-				res.json({ 'success': false })
-			}
-			else{
-				res.json({ 'success': true })
-			}
-		})
-	}
-	else{
+		await Board.deleteOne({ 'slug': req.params.board_slug })
+		res.json({ 'success': true })
+	} else {
 		res.status(401).send('Unauthorized')
 	}
-})
+}))
 
 /* GET newest boards */
-router.get('/list/new', passport.authenticate('jwt', {'session': false}), (req, res) => {
-	Board.find({ 'active': true }, board_list_default,
+router.get('/list/new', passport.authenticate('jwt', {'session': false}), asyncMid(async (req, res, next) => {
+	const boards = await Board.find({ 'active': true }, board_list_default,
 	{
 		'limit': settings.max_board_search_count,
 		'sort': {
 			'created_at': -1
 		}
-	}, (err, boards) => {
-		if(err){
-			res.json({ 'success': false })
-		}
-		else{
-			res.json({ 'success': true, 'doc': boards })
-		}
 	})
-})
+	res.json({ 'success': true, 'doc': boards })
+}))
 
 /* POST search for a board */
-router.post('/search', passport.authenticate('jwt', {'session': false}), (req, res) => {
-	Board.find(
+router.post('/search', passport.authenticate('jwt', {'session': false}), asyncMid(async (req, res, next) => {
+	const boards = await Board.find(
     { '$text': { '$search': req.body.query }},
     { 'score': { '$meta': 'textScore'}}
   ).sort(
     { 'score': { '$meta': 'textScore' }}
   ).limit(
     settings.max_board_results
-  ).exec((err, threads) => {
-    if(err || !threads){
-      res.json({ 'success': false })
-    }
-    else{
-      res.json({ 'success': true, 'doc': threads })
-    }
-  })
-})
+  )
+	res.json({ 'success': true, 'doc': boards })
+}))
 
 module.exports = router
