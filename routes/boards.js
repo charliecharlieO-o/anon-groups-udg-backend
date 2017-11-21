@@ -111,9 +111,6 @@ router.put('/:board_slug/image', passport.authenticate('jwt', {'session': false}
 		} else {
 			res.status(404).send('Inappropriate file format')
 		}
-		else{
-			res.json({'success': false})
-		}
 	} else {
 		res.status(401).send('Unauthorized')
 	}
@@ -153,8 +150,12 @@ router.put('/:board_slug', passport.authenticate('jwt', {'session': false}), asy
 router.delete('/:board_slug', passport.authenticate('jwt', {'session': false}), asyncMid(async (req, res, next) => {
 	// Check if user is allowed to delete board
 	if(utils.hasRequiredPriviledges(req.user.data.priviledges, ['delete_board'])){
-		await Board.deleteOne({ 'slug': req.params.board_slug })
-		res.json({ 'success': true })
+		const err = await Board.deleteOne({ 'slug': req.params.board_slug })
+		if (err) {
+			res.status(500).send('Error, board might not exist')
+		} else {
+			res.json({ 'success': true })
+		}
 	} else {
 		res.status(401).send('Unauthorized')
 	}
