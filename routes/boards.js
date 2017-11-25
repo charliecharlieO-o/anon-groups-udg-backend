@@ -2,9 +2,7 @@ const express = require('express')
 const shortid = require('shortid')
 const passport = require('passport')
 const router = express.Router()
-
-// Async
-const asyncMid = require('./asyncmid')
+const asyncMid = require('./asyncmid') // Async
 
 //MODELS
 const Board = require('../models/board')
@@ -150,12 +148,8 @@ router.put('/:board_slug', passport.authenticate('jwt', {'session': false}), asy
 router.delete('/:board_slug', passport.authenticate('jwt', {'session': false}), asyncMid(async (req, res, next) => {
 	// Check if user is allowed to delete board
 	if(utils.hasRequiredPriviledges(req.user.data.priviledges, ['delete_board'])){
-		const err = await Board.deleteOne({ 'slug': req.params.board_slug })
-		if (err) {
-			res.status(500).send('Error, board might not exist')
-		} else {
-			res.json({ 'success': true })
-		}
+		Board.deleteOne({ 'slug': req.params.board_slug })
+		res.json({ 'success': true })
 	} else {
 		res.status(401).send('Unauthorized')
 	}
