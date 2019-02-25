@@ -7,8 +7,8 @@ module.exports = {
       const transport = await nodemailer.createTransport(mg(
         {
           auth: {
-            api_key: 'key-e14260ce2d73f3f009bef796dfbacbcd',
-            domain: 'mg.netslap.me'
+            api_key: '',
+            domain: ''
           }
         }))
       const info = await transport.sendMail(mail)
