@@ -1,1 +1,1 @@
-# banshee-groups-server
+# anon groups frontend
